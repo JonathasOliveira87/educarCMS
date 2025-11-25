@@ -1,0 +1,95 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Corrigir tentativa - {{ attempt.assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <header class="page-header">
+    <div class="header-left">
+      <p class="breadcrumbs">
+        <a href="{% url 'assessment_submissions' school.slug attempt.assessment.id %}">
+          Submissões
+        </a> /
+        <strong>Correção</strong>
+      </p>
+      <h1 class="page-title">Correção da tentativa</h1>
+      <p class="page-subtitle">
+        Aluno: {{ attempt.student.user.get_full_name|default:attempt.student.user.username }} ·
+        Tentativa #{{ attempt.attempt_number }}
+      </p>
+    </div>
+  </header>
+
+  
+  <form method="post" class="card">
+    {% csrf_token %}
+
+    {% for ans in answers %}
+      <div class="question-review">
+        <div class="question-header">
+          <span class="question-number">Questão {{ forloop.counter }}</span>
+          <span class="question-points">{{ ans.question.points }} pts</span>
+        </div>
+
+        <p class="question-text">{{ ans.question.text }}</p>
+
+        {% if ans.question.type in 'multiple_choice,true_false' %}
+          <p><strong>Resposta do aluno:</strong>
+            {% if ans.choice %}
+              {{ ans.choice.text }}
+            {% else %}
+              Não respondida
+            {% endif %}
+          </p>
+          <p>
+            <strong>Resultado:</strong>
+            {% if ans.is_correct %}
+              ✅ Correta
+            {% else %}
+              ❌ Incorreta
+            {% endif %}
+          </p>
+
+        {% elif ans.question.type == 'essay' %}
+          <p><strong>Resposta do aluno:</strong></p>
+          <p>{{ ans.text_answer|linebreaks }}</p>
+
+          <label>Nota para esta questão (0 a {{ ans.question.points }}):</label>
+          <input type="number" class="input"
+                 name="grade_{{ ans.id }}" min="0"
+                 max="{{ ans.question.points }}" step="0.1">
+
+        {% elif ans.question.type == 'file' %}
+          <p><strong>Arquivo enviado:</strong>
+            {% if ans.file_answer %}
+              <a href="{{ ans.file_answer.url }}" target="_blank">Abrir arquivo</a>
+            {% else %}
+              Nenhum arquivo enviado.
+            {% endif %}
+          </p>
+
+          <label>Nota para esta questão (0 a {{ ans.question.points }}):</label>
+          <input type="number" class="input"
+                 name="grade_{{ ans.id }}" min="0"
+                 max="{{ ans.question.points }}" step="0.1">
+        {% endif %}
+      </div>
+      <hr>
+    {% endfor %}
+
+    <div class="form-actions">
+      <button type="submit" class="button primary">
+        Salvar correção e atualizar nota
+      </button>
+      <a href="{% url 'assessment_submissions' school.slug attempt.assessment.id %}"
+         class="button secondary">
+        Voltar
+      </a>
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

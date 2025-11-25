@@ -1,0 +1,420 @@
+/* ============================================================
+    NeoLearn - Components / _table.css
+    Sistema de tabelas reutilizável com responsividade avançada
+   ============================================================ */
+.table-responsive::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(to left, var(--bg-primary), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+
+  /* ESSENCIAL */
+  z-index: 2;
+}
+
+
+
+.table-block-title{
+  padding: var(--space-4);
+}
+
+.table-responsive:hover {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Indicador de scroll horizontal */
+.table-responsive::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 30px;
+  background: linear-gradient(to left, var(--bg-primary), transparent);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.table-responsive.has-scroll::after {
+  opacity: 1;
+}
+
+/* ============================================================
+    TABELA BASE REUTILIZÁVEL
+   ============================================================ */
+.neo-table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== CABEÇALHO E RODAPÉ ===== */
+.neo-table thead,
+.neo-table tfoot {
+  background: var(--bg-tertiary);
+  color: #fff;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+
+.neo-table thead th,
+.neo-table tfoot th {
+  padding: var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+/* ===== CÉLULAS ===== */
+.neo-table th,
+.neo-table td {
+  padding: var(--space-4);
+  text-align: left;
+  vertical-align: middle;
+}
+
+/* ===== CORPO ===== */
+.neo-table tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.25s ease;
+  background: var(--bg-tertiary);
+}
+
+.neo-table tbody tr:hover {
+  transform: translateX(3px);
+  box-shadow: inset 3px 0 0 var(--primary-500);
+}
+
+.neo-table tbody td:first-child {
+  color: var(--text-primary);
+}
+
+.neo-table tbody tr:nth-child(odd) {
+  background: var(--surface-50);
+}
+
+/* ============================================================
+    AÇÕES DE TABELA
+   ============================================================ */
+.table-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}
+
+.table-actions--center {
+  justify-content: center;
+}
+
+.table-actions--end {
+  justify-content: flex-end;
+}
+
+.table-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.table-action-btn:hover {
+  background: var(--surface-100);
+  color: var(--text-primary);
+}
+
+.table-action-btn--view:hover {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--primary-500, #3b82f6);
+}
+
+.table-action-btn--edit:hover {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-500, #f59e0b);
+}
+
+.table-action-btn--delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-500, #ef4444);
+}
+
+/* ============================================================
+    RESPONSIVE - TABLET (768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .table-responsive {
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    margin: 0 calc(var(--space-2) * -1);
+  }
+
+  .neo-table {
+    font-size: 0.85rem;
+  }
+
+  .neo-table thead th {
+    font-size: 0.7rem;
+    padding: var(--space-3);
+  }
+
+  .neo-table th,
+  .neo-table td {
+    padding: var(--space-3);
+  }
+
+  .neo-table .cell-avatar img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .neo-table .cell-avatar {
+    gap: 8px;
+  }
+
+  .neo-table .cell-truncate {
+    max-width: 120px;
+  }
+
+  .table-action-btn {
+    width: 28px;
+    height: 28px;
+  }
+
+  .table-actions {
+    gap: 4px;
+  }
+
+  /* Esconder colunas menos importantes */
+  .neo-table .hide-tablet,
+  .neo-table .hide-mobile {
+    display: none;
+  }
+
+}
+
+/* ============================================================
+    RESPONSIVE - MOBILE (576px)
+   ============================================================ */
+@media (max-width: 576px) {
+
+  .table-responsive {
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
+  }
+
+  .neo-table {
+    font-size: 0.8rem;
+  }
+
+  .neo-table thead th {
+    font-size: 0.65rem;
+    padding: var(--space-2);
+    letter-spacing: 0.3px;
+  }
+
+  .neo-table th,
+  .neo-table td {
+    padding: var(--space-2);
+  }
+
+  .neo-table tbody tr:hover {
+    transform: none;
+  }
+
+  .neo-table .cell-status {
+    padding: 3px 8px;
+    font-size: 0.65rem;
+  }
+
+  .neo-table .cell-avatar img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .neo-table .cell-avatar-name {
+    font-size: 0.8rem;
+  }
+
+  .neo-table .cell-avatar-sub {
+    font-size: 0.65rem;
+  }
+
+  .neo-table .cell-truncate {
+    max-width: 80px;
+  }
+
+  .table-action-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 0.75rem;
+  }
+
+  .table-actions {
+    gap: 2px;
+  }
+
+  .table-pagination-btn {
+    min-width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+/* ============================================================
+    MODO CARD PARA MOBILE (Opcional)
+    Adicione .neo-table--cards para ativar
+   ============================================================ */
+@media (max-width: 1024px) {
+  .neo-table--cards {
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .neo-table--cards thead {
+    display: none;
+  }
+
+  .neo-table--cards tbody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .neo-table--cards tbody tr {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .neo-table--cards tbody tr:hover {
+    transform: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .neo-table--cards tbody tr:nth-child(odd) {
+    background: var(--bg-primary);
+  }
+
+  .neo-table--cards tbody td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .neo-table--cards tbody td:last-child {
+    border-bottom: none;
+    padding-top: var(--space-3);
+    justify-content: center;
+  }
+
+  .neo-table--cards tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    flex-shrink: 0;
+    margin-right: var(--space-3);
+  }
+
+  .neo-table--cards .table-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .neo-table--cards .cell-avatar {
+    flex-direction: row-reverse;
+  }
+
+  .neo-table--cards .cell-truncate {
+    max-width: none;
+    text-align: right;
+  }
+}
+
+/* Esconder em breakpoints específicos */
+@media (max-width: 992px) {
+  .hide-lg { display: none !important; }
+}
+
+@media (max-width: 768px) {
+  .hide-md { display: none !important; }
+  .hide-tablet { display: none !important; }
+}
+
+@media (max-width: 576px) {
+  .hide-sm { display: none !important; }
+  .hide-mobile { display: none !important; }
+}
+
+/* Mostrar apenas em mobile */
+@media (min-width: 577px) {
+  .show-mobile-only { display: none !important; }
+}
+
+/* Texto responsivo */
+.text-truncate-responsive {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .text-truncate-responsive {
+    max-width: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .text-truncate-responsive {
+    max-width: 60px;
+  }
+}
+
+/* ============================================================
+    ALIASES (compatibilidade)
+   ============================================================ */
+.users-table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+}

@@ -1,0 +1,102 @@
+/* ============================================================
+   NeoLearn - Pages / _manage_users.css
+   ============================================================ */
+
+/* ===== USERS CARD ===== */
+.users-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.users-card .card-header h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+
+
+
+/* ===== USER INFO ===== */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.avatar-sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+}
+
+.user-name {
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.user-email {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: var(--space-12) var(--space-4);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  color: var(--color-muted);
+  opacity: 0.5;
+  margin-bottom: var(--space-4);
+}
+
+.empty-state h3 {
+  color: var(--color-text);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state p {
+  color: var(--color-muted);
+}
+
+
+/* Animação sutil da bolinha vermelha / emoji 🚫 */
+@keyframes pulseRed {
+  0% {
+    transform: translateY(-50%) scale(0.9);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-50%) scale(1.2);
+    opacity: 1;
+  }
+}
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .search-box input {
+    min-width: 100%;
+  }
+  
+
+}
+
+/* --- End: css/pages/_manager_user.css --- */

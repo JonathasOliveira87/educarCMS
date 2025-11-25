@@ -1,0 +1,214 @@
+/* ============================================================
+  NeoLearn - Layout / _header.css
+  ============================================================ */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--header-height);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  z-index: var(--z-fixed);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 var(--space-6);
+  gap: var(--space-6);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.menu-toggle {
+  display: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-lg);
+  transition: background-color var(--transition-fast);
+}
+
+.menu-toggle span {
+  width: 1.25rem;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: all var(--transition-fast);
+}
+
+.menu-toggle:hover {
+  background: var(--bg-tertiary);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: var(--primary-600);
+}
+
+.logo svg {
+  width: 32px;
+  height: 32px;
+}
+
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.icon-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.icon-btn .badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 0.25rem;
+  font-size: 0.625rem;
+  font-weight: var(--font-semibold);
+  color: white;
+  background: var(--error-500);
+  border-radius: var(--radius-full);
+  border: 2px solid var(--bg-primary);
+}
+
+.user-menu {
+  position: relative;
+}
+
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-200);
+  color: var(--primary-800);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  min-width: 14rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem);
+  transition: all var(--transition-fast);
+  z-index: var(--z-dropdown);
+}
+
+.dropdown-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-header strong {
+  display: block;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.dropdown-header span {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-1);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: var(--border-color);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.dropdown-item:first-of-type {
+  margin-top: var(--space-2);
+}
+
+.dropdown-item:last-of-type {
+  margin-bottom: var(--space-2);
+}
+
+.dropdown-item:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.dropdown-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 1024px) {
+  .menu-toggle {
+    display: flex;
+  }
+
+  .logo-text {
+    display: none;
+  }
+}
+/* --- End: css/layout/_header.css --- */

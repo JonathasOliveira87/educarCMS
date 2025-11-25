@@ -1,0 +1,296 @@
+/* ============================================================
+   NeoLearn - Pages / _dashboard.css
+   ============================================================ */
+
+/* Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 20rem;
+  gap: var(--space-6);
+}
+
+.dashboard-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.section-link {
+  font-size: var(--text-sm);
+  color: var(--primary-600);
+  font-weight: var(--font-medium);
+  transition: color var(--transition-fast);
+}
+
+.section-link:hover {
+  color: var(--primary-700);
+}
+
+/* Courses List */
+.courses-list {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.course-card {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-fast);
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.course-thumbnail {
+  position: relative;
+  width: 30rem;
+  height: 17rem;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.course-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.course-list-badge {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 0.25rem 0.5rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: white;
+  background: var(--primary-500);
+  border-radius: var(--radius-md);
+}
+
+.course-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.course-info h3 {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.course-instructor {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.course-meta {
+  display: flex;
+  gap: var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.course-meta span {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.course-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: auto;
+}
+
+
+.progress-text {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+}
+
+/* Widgets */
+.widget {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.widget-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.widget-title {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--text-primary);
+}
+
+.activity-list,
+.tasks-list {
+  padding: var(--space-4);
+}
+
+.activity-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.activity-item:not(:last-child) {
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.activity-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.activity-content {
+  flex: 1;
+}
+
+.activity-content p {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.activity-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* Tasks */
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.task-item:not(:last-child) {
+  border-bottom: 1px solid var(--bg-tertiary);
+}
+
+.task-item input[type="checkbox"] {
+  margin-top: 0.125rem;
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+.task-item label {
+  flex: 1;
+  cursor: pointer;
+}
+
+.task-item label span:first-child {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.task-date {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.task-item input[type="checkbox"]:checked + label span:first-child {
+  text-decoration: line-through;
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-aside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+
+
+@media (max-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-aside {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+
+  .footer {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--space-4);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .course-card {
+    flex-direction: column;
+  }
+
+  .course-thumbnail {
+    width: 100%;
+    height: 10rem;
+  }
+
+}
+/* --- End: css/pages/_dashboard.css --- */

@@ -1,0 +1,45 @@
+/* ============================================================
+   NeoLearn - Components / _analytics_card.css
+   ============================================================ */
+   
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+}
+
+.analytics-card {
+    background: var(--bg-primary);
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+    display: flex;
+    gap: var(--space-4);
+    align-items: center;
+    transition: all var(--transition-fast);
+}
+
+.analytics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.analytics-icon {
+    font-size: 2rem;
+}
+
+.analytics-value {
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+.analytics-label {
+    color: var(--text-muted);
+    font-size: .85rem;
+}
+
+.analytics-label.positive {
+  color: var(--success-600);
+}

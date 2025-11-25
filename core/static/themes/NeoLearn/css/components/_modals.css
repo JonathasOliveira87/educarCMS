@@ -1,0 +1,328 @@
+/* ============================================================
+   NeoLearn - Components / _modals.css (v2.0)
+   ============================================================ */
+
+/* Container Principal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 9990);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(0);
+  -webkit-backdrop-filter: blur(0);
+}
+
+.modal.active {
+  display: flex;
+  opacity: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Overlay com suporte a reduced-motion */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 9991;
+  background: rgba(0, 0, 0, 0.7);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.modal-overlay:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* Container de Conteúdo */
+.modal-content {
+  position: relative;
+  z-index: 9992;
+  background: var(--bg-elevated, var(--bg-primary));
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  border-radius: var(--radius-xl, 16px);
+  padding: 0;
+  box-shadow: 
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 12px 40px rgba(0, 0, 0, 0.25),
+    0 24px 68px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: modalScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center;
+  overflow: hidden;
+  will-change: transform, opacity;
+}
+
+/* Cabeçalho */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+  padding: var(--space-5, 1.25rem) var(--space-6, 1.5rem);
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--surface-primary);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: var(--text-lg, 1.125rem);
+  font-weight: var(--font-semibold, 600);
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+/* Botão Fechar */
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  color: var(--text-tertiary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: 
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
+  flex-shrink: 0;
+}
+
+.modal-close:hover {
+  background: var(--surface-tertiary);
+  color: var(--text-primary);
+  transform: rotate(90deg) scale(1.05);
+}
+
+.modal-close:active {
+  transform: rotate(90deg) scale(0.95);
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Corpo do Modal */
+.modal-body {
+  flex: 1;
+  padding: var(--space-3);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary, #6366f1) transparent;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary, #6366f1);
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-primary-dark, #4f46e5);
+}
+
+/* Rodapé */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-5, 1.25rem) var(--space-6, 1.5rem);
+  border-top: 1px solid var(--border-default, rgba(255, 255, 255, 0.1));
+  background: var(--surface-primary);
+  flex-shrink: 0;
+}
+
+/* Variantes de Tamanho */
+.modal-content.modal-sm {
+  max-width: 400px;
+}
+
+.modal-content.modal-md {
+  max-width: 600px;
+}
+
+.modal-content.modal-lg {
+  max-width: 800px;
+}
+
+.modal-content.modal-xl {
+  max-width: 1200px;
+}
+
+.modal-content.modal-full {
+  max-width: calc(100vw - var(--space-8, 2rem));
+  max-height: calc(100vh - var(--space-8, 2rem));
+}
+
+/* ============================================================
+   ANIMAÇÕES
+   ============================================================ */
+@keyframes modalFadeIn {
+  from { 
+    opacity: 0;
+  }
+  to { 
+    opacity: 1;
+  }
+}
+
+@keyframes modalScaleIn {
+  from {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Animação de saída */
+.modal.closing {
+  animation: modalFadeOut 0.2s ease forwards;
+}
+
+.modal.closing .modal-content {
+  animation: modalScaleOut 0.2s ease forwards;
+}
+
+@keyframes modalFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes modalScaleOut {
+  from {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.96) translateY(8px);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   PREFERÊNCIAS DE MOVIMENTO REDUZIDO
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .modal-content,
+  .modal-close {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .modal.active {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  
+  .modal-close:hover {
+    transform: none;
+  }
+}
+
+/* ============================================================
+   RESPONSIVIDADE
+   ============================================================ */
+@media (max-width: 640px) {
+  .modal {
+    padding: var(--space-3, 0.75rem);
+  }
+
+  .modal-content {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: var(--radius-lg, 12px);
+  }
+
+  .modal-header,
+  .modal-footer {
+    padding: var(--space-4, 1rem) var(--space-5, 1.25rem);
+  }
+
+  .modal-body {
+    padding: var(--space-5, 1.25rem);
+  }
+
+  .modal-title {
+    font-size: var(--text-base, 1rem);
+  }
+
+  .modal-close {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* Modais em tela cheia em mobile */
+  .modal-content.modal-lg,
+  .modal-content.modal-xl,
+  .modal-content.modal-full {
+    max-width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+/* ============================================================
+   ACESSIBILIDADE
+   ============================================================ */
+.modal:focus {
+  outline: none;
+}
+
+.modal[aria-hidden="true"] {
+  display: none;
+}
+
+/* Destaque de foco para navegação por teclado */
+.modal-content:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   UTILITÁRIOS
+   ============================================================ */
+
+/* Modal sem padding no body */
+.modal-body.no-padding {
+  padding: 0;
+}
+
+/* Modal com scroll travado */
+body.modal-open {
+  overflow: hidden;
+  padding-right: var(--scrollbar-width, 0);
+}

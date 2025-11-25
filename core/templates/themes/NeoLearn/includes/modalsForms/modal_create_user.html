@@ -1,0 +1,99 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+<form id="categoryForm" action="{% url 'create_user' school.slug %}" method="POST">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="full_name" class="form-label">Nome Completo</label>
+        <input 
+            class="form-input" 
+            type="text" 
+            id="full_name" 
+            name="full_name" 
+            required 
+            placeholder="Ex: Paulo Cesar..."
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="ru" class="form-label">RU (Registro do Usuário)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input 
+                class="form-input" 
+                type="text" 
+                id="ru" 
+                name="username" 
+                maxlength="7" 
+                readonly 
+                required 
+                placeholder="Clique para gerar RU"
+                >
+                <button 
+                type="button" 
+                class="btn btn-outline" 
+                onclick="generateRU()"
+                style="white-space: nowrap;"
+                >
+                Gerar RU
+                </button>
+            </div>
+    </div>
+
+    <div class="form-group">
+        <label for="email" class="form-label">Email</label>
+        <input 
+            class="form-input" 
+            type="email" 
+            id="email" 
+            name="email" 
+            required 
+            placeholder="Ex: paulo@..."
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="phone" class="form-label">Telefone</label>
+        <input 
+            class="form-input" 
+            type="text" 
+            id="phone" 
+            name="phone" 
+            placeholder="(XX) XXXXX-XXXX"
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="status" class="form-label">Status</label>
+        <select class="form-select" id="status" name="status" required>
+            <option value="active">Ativo</option>
+            <option value="inactive">Inativo</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="role" class="form-label">Função</label>
+        <select class="form-select" id="role" name="role" required>
+            <option value="student">Aluno</option>
+            <option value="teacher">Professor</option>
+            <option value="admin">Administrador</option>
+        </select>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('{{ modal_id }}')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Criar Usuário</button>
+    </div>
+</form>
+
+<script>
+function generateRU() {
+  const ruInput = document.getElementById('ru');
+  // Gera um número aleatório de 7 dígitos
+  const randomRU = Math.floor(1000000 + Math.random() * 9000000);
+  ruInput.value = randomRU;
+}
+  
+// Gera automaticamente ao abrir a página
+document.addEventListener('DOMContentLoaded', generateRU);
+</script>
+{% endblock %}

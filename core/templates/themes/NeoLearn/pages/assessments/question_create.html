@@ -1,0 +1,65 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Nova questão - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <!-- ======= Breadcrumbs ======= -->
+  <p class="breadcrumbs">
+    <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+      <a href="{% url 'assessment_list' school.slug assessment.course.id %}">Avaliações</a> 
+    <a href="{% url 'question_list' school.slug assessment.id %}">Questões</a>
+    <strong>Nova Questão</strong>
+  </p>
+
+  <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Nova questão" subtitle="Defina o enunciado, tipo e pontuação da questão." %}
+  </div>
+
+<div class="table-responsive">
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_text">Enunciado da questão</label>
+        <textarea class="form-textarea" id="id_text" name="text" class="textarea" rows="4" required></textarea>
+      </div>
+
+      <div class="form-grid two-cols">
+        <div class="form-group">
+          <label class="form-label" for="id_type">Tipo de questão</label>
+          <select class="form-select" id="id_type" name="type">
+            <option value="multiple_choice">Múltipla escolha</option>
+            <option value="true_false">Verdadeiro ou falso</option>
+            <option value="essay">Dissertativa</option>
+            <option value="file">Envio de arquivo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_points">Pontos</label>
+          <input class="form-input" type="number" id="id_points" name="points"
+                 value="1" min="0" step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="id_order">Ordem</label>
+          <input class="form-input" type="number" id="id_order" name="order"
+                 value="{{ questions|length|add:1|default_if_none:'1' }}">
+          <small class="helper-text">A ordem define a posição da questão na prova.</small>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salvar questão</button>
+        <a href="{% url 'question_list' school.slug assessment.id %}"
+           class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

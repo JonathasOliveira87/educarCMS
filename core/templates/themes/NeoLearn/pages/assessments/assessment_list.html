@@ -1,0 +1,34 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Avaliações - {{ course.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs">
+  <a href="{% url 'course_detail' school.slug course.id %}">{{ course.title|title }}</a>
+  <strong>Avaliações</strong>
+</div>
+
+ <!-- ======= Page Hearder ======= -->
+<div class="page-header">
+  {% url 'assessment_create' school.slug course.id as new_assessment_url %}
+  {% include "themes/NeoLearn/components/page_header.html" with title="Avaliações do curso" subtitle="Gerencie provas, APOLs, atividades e quizzes deste curso." action_url=new_assessment_url action_label=" + Nova Avaliação" %}
+</div>
+
+<!-- ======= Table ======= -->
+{% if course_assessments %}
+  {% include "themes/NeoLearn/components/_assessment_table.html" with items=course_assessments %}
+{% endif %}
+
+
+{% for subject, items in subjects_with_assessments.items %}
+  {% include "themes/NeoLearn/components/_assessment_table.html" with items=items %}
+{% empty %}
+  <!-- Empty State -->
+  {% include "themes/NeoLearn/components/empty_state.html" with title="Nenhuma avaliação cadastrada" message="Este curso ainda não possui avaliações disponíveis." %}
+{% endfor %}
+
+
+{% endblock %}

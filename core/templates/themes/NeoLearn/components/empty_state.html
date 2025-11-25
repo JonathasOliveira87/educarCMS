@@ -1,0 +1,19 @@
+<div class="empty-state">
+    <div class="empty-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <circle cx="40" cy="40" r="38" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+            <rect x="20" y="16" width="40" height="48" rx="4" stroke="currentColor" stroke-width="2"/>
+            <path d="M28 28h24M28 36h24M28 44h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="56" cy="56" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M56 50v6M56 62h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </div>
+
+    <h3 class="empty-title">
+        {{ title|default:"Nada encontrado" }}
+    </h3>
+
+    <p class="empty-message">
+        {{ message|default:"Não há itens para exibir no momento." }}
+    </p>
+</div>

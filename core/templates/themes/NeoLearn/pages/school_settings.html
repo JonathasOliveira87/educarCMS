@@ -1,0 +1,117 @@
+{% extends "themes/NeoLearn/base.html" %}
+
+{% load static %}
+
+{% block title %}Configurações - {{ school.name }}{% endblock %}
+
+
+{% block content %}
+<div class="settings-container">
+
+  <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Configurações" subtitle="Gerencie as informações e aparência da sua escola" %}
+  </div>
+
+
+    <!-- Card Principal -->
+    <div class="settings-card">
+        <div class="card-header">
+            <h4>📋 Perfil da Escola</h4>
+        </div>
+        <div class="card-body">
+            <form method="POST" action="{% url 'school_settings_update' slug=school.slug %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <!-- Logo -->
+                <div class="logo-section">
+                    <div class="logo-preview-wrapper">
+                        {% if school.logo %}
+                            <img src="{{ school.logo.url }}" alt="Logo" class="logo-preview">
+                        {% else %}
+                            <div class="logo-placeholder">
+                                <i>🏫</i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="form-group">
+                        <label for="logo" class="form-label">📷 Alterar Logo</label>
+                        <input type="file" class="form-input" id="logo" name="logo" accept="image/*">
+                        <small class="form-text">✨ Formatos: JPG, PNG, GIF • Tamanho máximo: 2MB</small>
+                    </div>
+                </div>
+
+                <!-- Nome da Escola -->
+                <div class="form-group">
+                    <label for="school_name" class="form-label">🏫 Nome da Escola *</label>
+                    <input type="text" class="form-input" id="school_name" name="school_name" 
+                            value="{{ school.name }}" required placeholder="Digite o nome da escola">
+                </div>
+
+                <!-- Slogan -->
+                <div class="form-group">
+                    <label for="slogan" class="form-label">💬 Slogan</label>
+                    <input type="text" class="form-input" id="slogan" name="slogan" 
+                            value="{{ school.slogan|default:'' }}" placeholder="Ex: Educação para o futuro">
+                    <small class="form-text">Uma frase que representa sua escola</small>
+                </div>
+
+                <!-- Badge -->
+                <div class="form-group">
+                    <label for="badge" class="form-label">🏆 Badge/Distintivo</label>
+                    <input type="text" class="form-input" id="badge" name="badge" 
+                            value="{{ school.badge|default:'' }}" placeholder="Ex: Escola Premium ⭐">
+                    <small class="form-text">Selo ou distintivo especial</small>
+                </div>
+
+                <hr class="divider">
+
+                <h5 class="section-title">📞 Informações de Contato</h5>
+
+                <!-- Grid para E-mail e Telefone -->
+                <div class="form-row">
+                    <!-- E-mail -->
+                    <div class="form-group">
+                        <label for="contact_email" class="form-label">📧 E-mail de Contato</label>
+                        <input type="email" class="form-input" id="contact_email" name="contact_email" 
+                                value="{{ school.email|default:'' }}" placeholder="contato@escola.com">
+                    </div>
+
+                    <!-- Telefone -->
+                    <div class="form-group">
+                        <label for="phone" class="form-label">📱 Telefone</label>
+                        <input type="tel" class="form-input" id="phone" name="phone" 
+                                value="{{ school.telephone|default:'' }}" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <!-- Botões -->
+                <div class="button-group">
+                    <button type="reset" class="btn btn-secondary">
+                        <span>❌</span> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <span>✅</span> Salvar Alterações
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+<script>
+// Preview da imagem antes do upload
+document.getElementById('logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const wrapper = document.querySelector('.logo-preview-wrapper');
+            wrapper.innerHTML = `<img src="${event.target.result}" alt="Preview" class="logo-preview">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+{% endblock %}

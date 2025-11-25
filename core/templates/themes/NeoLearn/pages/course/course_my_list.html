@@ -1,0 +1,242 @@
+{% extends "themes/NeoLearn/base.html" %}
+
+{% load static custom_filters %}
+
+{% block title %}Meus Cursos - {{ school.name }}{% endblock %} 
+
+{%block body_class %}courses-page{% endblock %} 
+
+{% block content %}
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Meus Cursos" subtitle="Acompanhe os cursos em que você está matriculado" %}
+</div>
+
+<!-- ======= Analytics Cards ======= -->
+<div class="analytics-grid">
+    {% include "themes/NeoLearn/components/analytics-card.html" with icon="🎓" value=courses.count label="Cursos Matriculados" %}
+    {% include "themes/NeoLearn/components/analytics-card.html" with icon="🏆" value=completed_courses_count|default:0 label="Cursos Concluídos" %}
+    {% include "themes/NeoLearn/components/analytics-card.html" with icon="⏱️" value=total_hours_watched|default:0 label="Horas Assistidas" %}
+    {% include "themes/NeoLearn/components/analytics-card.html" with icon="📈" value=user_global_progress|floatformat:0|stringformat:"s%%" label="Progresso Médio" %}
+</div>
+
+<!-- ======= Filter Bar ======= -->
+<div class="filter-bar">
+    <div class="filter-search">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path
+                d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+            />
+        </svg>
+        <input type="search" placeholder="Buscar cursos..." class="filter-search-input" />
+    </div>
+
+    <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="progress">
+            Meus cursos
+            <span class="filter-count">{{ total_enrolled }}</span>
+        </button>
+        <button class="filter-tab" data-filter="completed">
+            Concluídos
+            <span class="filter-count">{{ completed_courses_count|default:0 }}</span>
+        </button>
+    </div>
+</div>
+
+<!-- ======= Courses Grid ======= -->
+<div class="courses-grid" id="coursesGrid">
+    {% for course in courses %}
+        {% if user.is_authenticated and course.id in enrolled_ids %}
+        <div
+            class="course-card-large"
+            data-status="{% if user_course_progress|dict_get:course.id >= 100 %}completed{% else %}progress{% endif %}">
+            <div class="course-card-image">
+                {% load custom_filters %}
+
+                {% if course.video_intro %}
+
+                {% if 'youtube.com' in course.video_intro or 'youtu.be' in course.video_intro %}
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src="{{ course.video_intro|youtube_embed }}" 
+                    title="YouTube video player" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    referrerpolicy="strict-origin-when-cross-origin" 
+                    allowfullscreen>
+                </iframe>
+                
+                {% else %}
+                    <video src="{{ course.video_intro.url }}" controls width="100%"></video>
+                {% endif %}
+                {% elif course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title|title }}" />
+                {% else %}
+                <img
+                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop"
+                    alt="{{ course.title|title }}"
+                />
+                {% endif %}
+
+                {% if course.status == 'active' %}
+                <span class="status-badge active">Ativo</span>
+                {% elif course.status == 'archived' %}
+                <span class="status-badge archived">Arquivado</span>
+                {% endif %}
+            </div>
+
+            <div class="course-card-content">
+                <h3 class="course-card-title">
+                    <a href="{% url 'course_detail' slug=school_user.school.slug course_id=course.id %}">
+                        {{ course.title|title|truncatechars:37 }}
+                    </a>
+                </h3>
+                <p class="course-card-description">{{ course.short_description|truncatewords:20 }}</p>
+
+                <div class="course-card-meta">
+                    <div class="meta-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 1L1 4l7 3 7-3-7-3zM1 12l7 3 7-3" stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                        <span>{{ course.total_lessons }} Aulas</span>
+                    </div>
+
+                    <div class="meta-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5" />
+                            <path d="M8 4v4l2 2" stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                        <span>{{ course.total_duration_display }}</span>
+                        
+                    </div>
+
+                </div>
+
+                <div class="course-card-progress">
+                    <div class="progress-info">
+                        <span class="progress-label">Progresso do curso</span>
+                        <span class="progress-percentage">{{ user_course_progress|dict_get:course.id }}%</span>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ user_course_progress|dict_get:course.id|default:0|floatformat:0 }}%;"></div>
+                    </div>
+                    <a
+                        href="{% url 'course_detail' slug=school_user.school.slug course_id=course.id %}"
+                        class="btn btn-success"
+                    >
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.5" />
+                            <circle cx="10" cy="10" r="2" stroke="currentColor" stroke-width="1.5" />
+                        </svg>
+                        Assistir Aulas
+                    </a>
+                </div>
+
+                <div class="course-card-footer">
+                    <div class="course-instructor">
+                        <div class="instructor-avatar">
+                            {% if course.instructor.profile.avatar %}
+                            <img
+                                src="{{ course.instructor.profile.avatar.url }}"
+                                alt="{{ course.instructor.get_full_name }}"
+                            />
+                            {% else %}
+                            <div class="avatar-placeholder-small">{{ course.instructor.username.0|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                    </div>
+
+                    <span class="course-updated"> Atualizado {{ course.updated_at|timesince }} atrás </span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% empty %}
+    <div class="empty-state">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" opacity="0.2" />
+            <path
+                d="M60 30L30 45v30l30 15 30-15V45L60 30z"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                opacity="0.3"
+            />
+            <circle cx="60" cy="60" r="8" fill="currentColor" opacity="0.3" />
+        </svg>
+        <h3>Você ainda não está matriculado em nenhum curso</h3>
+        <p>Explore o catálogo e comece sua jornada de aprendizado 🚀</p>
+        <a href="{% url 'course_catalog' slug=school_user.school.slug %}" class="btn btn-primary">
+            Ver Catálogo de Cursos
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} {% block extra_js %}
+
+<script>
+    // View toggle
+    document.querySelectorAll(".view-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+            document.querySelectorAll(".view-btn").forEach((b) => b.classList.remove("active"));
+            this.classList.add("active");
+
+            const view = this.dataset.view;
+            const grid = document.getElementById("coursesGrid");
+
+            grid.classList.toggle("list-view", view === "list");
+        });
+    });
+
+    // Filter tabs
+    // Filter tabs
+    document.querySelectorAll(".filter-tab").forEach((tab) => {
+        tab.addEventListener("click", function () {
+            document.querySelectorAll(".filter-tab").forEach((t) => t.classList.remove("active"));
+            this.classList.add("active");
+
+            const filter = this.dataset.filter;
+            const cards = document.querySelectorAll(".course-card-large");
+
+            cards.forEach((card) => {
+                const status = card.dataset.status;
+                if (filter === "progress" || status === filter) {
+                    card.style.display = "block";
+                } else {
+                    card.style.display = "none";
+                }
+            });
+        });
+    });
+
+    // Search
+    const searchInput = document.querySelector(".filter-search-input");
+    function debounce(fn, delay) {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn(...args), delay);
+        };
+    }
+    searchInput?.addEventListener(
+        "input",
+        debounce(function (e) {
+            const query = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll(".course-card-large");
+            cards.forEach((card) => {
+                const title = card.querySelector(".course-card-title").textContent.toLowerCase();
+                const desc = card.querySelector(".course-card-description").textContent.toLowerCase();
+                card.style.display = title.includes(query) || desc.includes(query) ? "block" : "none";
+            });
+        }, 300)
+    );
+</script>
+{% endblock %}

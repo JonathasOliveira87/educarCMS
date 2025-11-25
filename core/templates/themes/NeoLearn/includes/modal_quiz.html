@@ -1,0 +1,39 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+<div class="modal" id="quizModal{{ lesson.id }}">
+    <div class="modal-overlay" onclick="closeModal('quizModal{{ lesson.id }}')"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">Quiz: {{ lesson.title }}</h3>
+            <button type="button" class="modal-close" onclick="closeModal('quizModal{{ lesson.id }}')">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <form method="post" action="{% url 'lesson_quiz' slug=school.slug course_id=course.id lesson_id=lesson.id %}">
+            {% csrf_token %}
+            <div class="modal-body quiz-body">
+                <p class="quiz-question">{{ lesson.description }}</p>
+
+                {% for option in options %}
+                    <label class="quiz-option">
+                        <input type="radio" name="answer" value="{{ option }}" required>
+                        <span>{{ option }}</span>
+                    </label>
+                {% empty %}
+                    <p>Nenhuma alternativa cadastrada.</p>
+                {% endfor %}
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline" onclick="closeModal('quizModal{{ lesson.id }}')">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Responder</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

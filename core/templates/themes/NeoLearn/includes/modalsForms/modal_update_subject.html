@@ -1,0 +1,44 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+
+<form id="formUpdateSubject" method="POST" class="modal-body" action="">
+  {% csrf_token %}
+    <div class="modal-body">
+
+        <!-- Título -->
+        <div class="form-group">
+            <label class="form-label">Título da Matéria
+                <span class="required-mark">*</span>
+            </label>
+            <input class="form-input" type="text" id="subjectTitle" name="title" required>
+        </div>
+
+        <!-- Descrição -->
+        <div class="form-group">
+            <label class="form-label">Descrição</label>
+            <textarea id="subjectDescription" class="form-textarea" rows="3" name="description"></textarea>
+        </div>
+
+        <!-- Ordem e Status -->
+         <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Ordem</label>
+                <input type="number" id="subjectOrder" name="order" class="form-input" min="1" step="1" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select id="subjectStatus"class="form-select" name="status">
+                    <option value="draft">Rascunho</option>
+                    <option value="published">Publicado</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('modalUpdateSubject')">Cancelar</button>
+            <button type="submit" class="btn btn-primary">Salvar Matéria</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "themes/NeoLearn/base.html" %} {% block content %}
+{% load static %}
+<div class="admin-page-title">
+    <h1>Painel Administrativo</h1>
+    <p>Gerencie toda sua escola.</p>
+</div>
+
+<div class="admin-grid-3">
+    <a class="card-admin" href="{% url 'manage_users' school.slug %}">
+        👥
+        <h2>Usuários</h2>
+    </a>
+
+    <a class="card-admin" href="{% url 'course_list' school.slug %}">
+        📘
+        <h2>Cursos</h2>
+    </a>
+
+    <a class="card-admin" href="{% url 'category_list' school.slug %}">
+        🏷
+        <h2>Categorias</h2>
+    </a>
+
+    <a class="card-admin" href="{% url 'school_settings' school.slug %}">
+        ⚙
+        <h2>Configurações</h2>
+    </a>
+</div>
+{% endblock %}

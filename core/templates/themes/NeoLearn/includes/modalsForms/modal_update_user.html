@@ -1,0 +1,126 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+<form id="editUserForm" action="" method="POST">
+    {% csrf_token %}
+
+    <div class="form-group">
+        <label for="edit_full_name" class="form-label">Nome Completo</label>
+        <input 
+            class="form-input" 
+            type="text" 
+            id="edit_full_name" 
+            name="full_name" 
+            required 
+            placeholder="Ex: Paulo Cesar..."
+        >
+    </div>
+
+
+    <div class="form-group">
+        <label for="edit_ru" class="form-label">RU (Registro do Usuário)</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input 
+                    class="form-input" 
+                    type="text" 
+                    id="edit_ru" 
+                    name="username" 
+                    maxlength="7" 
+                    readonly 
+                    required
+                >
+                <button 
+                type="button" 
+                class="btn btn-outline disabled" 
+                onclick=""
+                style="white-space: nowrap;"
+                >
+                Gerar RU
+                </button>
+            </div>
+    </div>
+
+
+
+    <div class="form-group">
+        <label for="edit_email" class="form-label">Email</label>
+        <input 
+            class="form-input" 
+            type="email" 
+            id="edit_email" 
+            name="email" 
+            required 
+            placeholder="Ex: paulo@..."
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="edit_phone" class="form-label">Telefone</label>
+        <input 
+            class="form-input" 
+            type="text" 
+            id="edit_phone" 
+            name="phone" 
+            placeholder="(XX) XXXXX-XXXX"
+        >
+    </div>
+
+    <div class="form-group">
+    <label for="status" class="form-label">Status</label>
+    <select class="form-select" id="status" name="status" required>
+        <option value="active">Ativo</option>
+        <option value="inactive">Inativo</option>
+    </select>
+    </div>
+
+
+    <div class="form-group">
+        <label for="edit_role" class="form-label">Função</label>
+        <select class="form-select" id="edit_role" name="role" required>
+            <option value="student">Aluno</option>
+            <option value="teacher">Professor</option>
+            <option value="admin">Administrador</option>
+        </select>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('{{ modal_id }}')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">
+            💾 Salvar Alterações
+        </button>
+    </div>
+</form>
+
+<script>
+function openEditModal(button) {
+    const modal = document.getElementById('modalEditUser');
+    const form = document.getElementById('editUserForm');
+
+    // Dados do botão
+    const url = button.dataset.url;
+    const name = button.dataset.name;
+    const email = button.dataset.email;
+    const phone = button.dataset.phone;
+    const role = button.dataset.role;
+    const ru = button.dataset.ru;
+    const status = button.dataset.status;
+
+    // Aplica a URL no form
+    form.action = url;
+
+    // Preenche os campos
+    document.getElementById('edit_full_name').value = name || '';
+    document.getElementById('edit_email').value = email || '';
+    document.getElementById('edit_phone').value = phone || '';
+    document.getElementById('edit_role').value = role || '';
+    document.getElementById('edit_ru').value = ru || '';
+    document.getElementById('status').value = status || '';
+
+    // Exibe o modal
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+
+</script>
+{% endblock %}

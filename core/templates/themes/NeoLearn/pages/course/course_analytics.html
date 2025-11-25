@@ -1,0 +1,78 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Analytics — {{ course.title }}{% endblock %}
+{% block body_class %}course-analytics-page{% endblock %}
+
+{% block content %}
+<div class="page-container">
+
+    <p class="breadcrumbs">
+        <a href="{% url 'school_dashboard' school.slug %}">Painel</a> /
+        <a href="{% url 'course_detail' school.slug course.id %}">{{ course.title }}</a> /
+        <strong>Analytics</strong>
+    </p>
+
+    {% include "themes/NeoLearn/components/page_header.html" with title="Analytics do Curso" subtitle="Visão geral de desempenho e engajamento" %}
+   
+
+    <div class="stats-grid">
+
+        <!-- Total de alunos -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#4f46e5;">
+                <svg width="24" height="24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff"/></svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-value">{{ total_students }}</h3>
+                <p class="stat-label">Alunos Matriculados</p>
+            </div>
+        </div>
+
+        <!-- Progresso médio -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#0ea5e9;">
+                <svg width="24" height="24" fill="none"><path stroke="#fff" d="M4 12h16"/></svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-value">{{ avg_progress }}%</h3>
+                <p class="stat-label">Progresso Médio</p>
+            </div>
+        </div>
+
+        <!-- Conclusão -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#10b981;">
+                <svg width="24" height="24" fill="none"><path stroke="#fff" d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-value">{{ completion_rate }}%</h3>
+                <p class="stat-label">Taxa de Conclusão</p>
+            </div>
+        </div>
+
+        <!-- Tempo total -->
+        <div class="stat-card">
+            <div class="stat-icon" style="background:#f59e0b;">
+                <svg width="24" height="24" fill="none"><circle cx="12" cy="12" r="10" stroke="#fff"/></svg>
+            </div>
+            <div class="stat-info">
+                <h3 class="stat-value">{{ total_duration }}</h3>
+                <p class="stat-label">Conteúdo Total</p>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Aula mais assistida -->
+    {% if most_viewed_lesson %}
+    <div class="card mt-4">
+        <h2>Aula mais concluída</h2>
+        <p>{{ most_viewed_lesson.lesson__title }}</p>
+        <p class="text-muted">{{ most_viewed_lesson.total }} conclusões</p>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+<div class="table-responsive">
+  <h3 class="table-block-title">
+    {% if subject %}
+      📚 Matéria: {{ subject.title }}
+    {% else %}
+      📚 Curso: {{ course.title }}
+    {% endif %}
+  </h3>
+
+  <table class="neo-table neo-table--cards">
+    <thead>
+      <tr>
+        <th>Título</th>
+        <th>Tipo</th>
+        <th>Peso</th>
+        <th>Disponibilidade</th>
+        <th>Tentativas</th>
+        <th>Questões</th>
+        <th>Submissões</th>
+        <th class="table-actions">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a in items %}
+        <tr>
+          <td>{{ a.title }}</td>
+          <td>{{ a.get_type_display }}</td>
+          <td>{{ a.weight }}%</td>
+          <td>
+            {% if a.open_at %}
+              {{ a.open_at|date:"d/m/Y H:i" }} –
+              {% if a.close_at %}
+                {{ a.close_at|date:"d/m/Y H:i" }}
+              {% else %}
+                sem fechamento
+              {% endif %}
+            {% else %}
+              Imediata
+            {% endif %}
+          </td>
+          <td>{{ a.attempts_allowed }}</td>
+          <td>{{ a.questions.count }}</td>
+          <td>{{ a.attempts.count }}</td>
+
+          <td class="table-actions">
+            <a href="{% url 'question_list' school.slug a.id %}" class="btn-icon" title="Listar Questões">📝</a>
+            <a href="{% url 'assessment_submissions' school.slug a.id %}" class="btn-icon">📤</a>
+            <a href="{% url 'assessment_stats' school.slug a.id %}" class="btn-icon" title="Dados Analiticos">📊</a>
+            <a href="{% url 'assessment_edit' school.slug a.id %}" class="btn-icon edit" title="Editar avaliação">✏️</a>
+
+              <button class="btn-icon delete" 
+                    data-url="{% url 'assessment_delete' school.slug a.id %}"
+                    data-message="Tem certeza que deseja excluir &#10; '{{ a.title }} ?'"
+                    onclick="openConfirmDelete(this)"
+                    title="Deletar Avaliação"
+                    >
+                    🗑️
+              </button>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+

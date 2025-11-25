@@ -1,0 +1,39 @@
+/* ============================================================
+   NeoLearn - Components / _breadcrumbs.css
+   ============================================================ */
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) 0;
+  margin-bottom: var(--space-5);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.breadcrumbs a {
+  color: var(--primary-700);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.breadcrumbs a:hover {
+  color: var(--primary-400);
+}
+
+.breadcrumbs a::after {
+  content: '/';
+  margin-left: var(--space-2);
+  color: var(--text-primary);
+  font-weight: 400;
+}
+
+.breadcrumbs strong {
+  color: var(--text-tertiary);
+  font-weight: 600;
+}

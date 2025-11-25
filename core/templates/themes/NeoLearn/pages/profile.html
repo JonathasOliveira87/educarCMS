@@ -1,0 +1,491 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Meu Perfil - NeoLearn{% endblock %}
+{% block body_class %}profile-page{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-banner">
+        {% if user.profile.banner %}
+        <div class="profile-banner-img" style="background-image: url('{{ user.profile.banner.url }}');"></div>
+        {% endif %}
+        <div class="profile-banner-overlay"></div>
+
+        <button class="right-btn" id="editBannerBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M14 2a2 2 0 0 1 2.828 0l1.172 1.172a2 2 0 0 1 0 2.828L6 18H2v-4L14 2z" 
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Editar Banner
+        </button>
+        </div>
+
+        
+        <div class="profile-header-content">
+            <div class="profile-avatar-section">
+                <div class="profile-avatar-large">
+                    {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name }}">
+                    {% else %}
+                    <div class="avatar-placeholder-large">{{ user.username.0|upper }}</div>
+                    {% endif %}
+                    <button class="avatar-edit-btn" id="editAvatarBtn">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="2" y="5" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                            <circle cx="8" cy="9" r="2" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M6 5V3.5A1.5 1.5 0 0 1 7.5 2h1A1.5 1.5 0 0 1 10 3.5V5" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="profile-basic-info">
+                    <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="profile-role">
+                        {% if user.is_staff %}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3L5 9 1 6h5z" fill="currentColor"/>
+                        </svg>
+                        Administrador
+                        {% else %}
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M13 14v-1a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v1M8 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Estudante
+                        {% endif %}
+                    </p>
+                    <p class="profile-member-since">Membro desde {{ user.date_joined|date:"F Y" }}</p>
+                </div>
+            </div>
+            
+            <div class="profile-stats">
+                <div class="stat-box">
+                    <span class="stat-number">{{ enrolled_courses.count }}</span>
+                    <span class="stat-label">Cursos</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">{{ completed_courses_count }}</span>
+                    <span class="stat-label">Concluídos</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-number">{{ certificates_count }}</span>
+                    <span class="stat-label">Certificados</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- Sidebar Navigation -->
+        <aside class="profile-sidebar">
+            <nav class="profile-nav">
+                <button class="profile-nav-item active" data-tab="personal">
+                    ⛉
+                    <span>Informações Pessoais</span>
+                </button>
+                
+                <button class="profile-nav-item" data-tab="account">
+                    ⚙
+                    <span>Conta e Segurança</span>
+                </button>
+                
+                <button class="profile-nav-item" data-tab="preferences">
+                    ⚒
+                    <span>Preferências</span>
+                </button>
+                
+                <button class="profile-nav-item" data-tab="notifications">
+                    🔔︎
+                    <span>Notificações</span>
+                </button>
+                
+                <button class="profile-nav-item" data-tab="certificates">
+                    🏆︎
+                    <span>Certificados</span>
+                </button>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <div class="profile-main">
+            <!-- Personal Information Tab -->
+            <div class="profile-tab active" id="tab-personal">
+                <div class="tab-header">
+                    <h2 class="tab-title">Informações Pessoais</h2>
+                    <p class="tab-description">Atualize suas informações pessoais e de contato</p>
+                </div>
+                
+                <form method="POST" action="{% url 'profile_update' slug=school_user.school.slug %}" class="profile-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nome</label>
+                            <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input" placeholder="Seu nome">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Sobrenome</label>
+                            <input type="text" name="last_name" value="{{ user.last_name }}" class="form-input" placeholder="Seu sobrenome">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" name="email" value="{{ user.email }}" class="form-input" placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" name="phone" value="{{ user.profile.phone|default:'' }}" class="form-input" placeholder="(00) 00000-0000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Bio</label>
+                        <textarea name="bio" class="form-textarea" rows="4" placeholder="Conte um pouco sobre você...">{{ user.profile.bio|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Data de Nascimento</label>
+                            <input type="date" name="birth_date" value="{{ user.profile.birth_date|date:'Y-m-d' }}" class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Gênero</label>
+                            <select name="gender" class="form-select">
+                                <option value="">Selecione</option>
+                                <option value="M" {% if user.profile.gender == 'M' %}selected{% endif %}>Masculino</option>
+                                <option value="F" {% if user.profile.gender == 'F' %}selected{% endif %}>Feminino</option>
+                                <option value="O" {% if user.profile.gender == 'O' %}selected{% endif %}>Outro</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Localização</label>
+                        <input type="text" name="location" value="{{ user.profile.location|default:'' }}" class="form-input" placeholder="Cidade, Estado">
+                    </div>
+                    
+                    <div class="form-divider"></div>
+                    
+                    <h3 class="form-section-title">Redes Sociais</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="#1DA1F2">
+                                <path d="M16 3.04c-.6.26-1.23.44-1.9.52A3.32 3.32 0 0 0 15.56 1.6a6.58 6.58 0 0 1-2.1.8A3.3 3.3 0 0 0 7.88 5.4a9.36 9.36 0 0 1-6.8-3.44A3.3 3.3 0 0 0 2.1 6.9a3.28 3.28 0 0 1-1.5-.4v.04a3.3 3.3 0 0 0 2.64 3.23 3.3 3.3 0 0 1-1.49.06 3.3 3.3 0 0 0 3.08 2.29A6.61 6.61 0 0 1 0 13.54a9.33 9.33 0 0 0 5.03 1.47c6.04 0 9.34-5 9.34-9.34v-.42A6.67 6.67 0 0 0 16 3.04z"/>
+                            </svg>
+                            Twitter
+                        </label>
+                        <input type="url" name="twitter" value="{{ user.profile.twitter|default:'' }}" class="form-input" placeholder="https://twitter.com/seu_usuario">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="#0A66C2">
+                                <path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"/>
+                            </svg>
+                            LinkedIn
+                        </label>
+                        <input type="url" name="linkedin" value="{{ user.profile.linkedin|default:'' }}" class="form-input" placeholder="https://linkedin.com/in/seu_usuario">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="#333">
+                                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                            </svg>
+                            GitHub
+                        </label>
+                        <input type="url" name="github" value="{{ user.profile.github|default:'' }}" class="form-input" placeholder="https://github.com/seu_usuario">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Account & Security Tab -->
+            <div class="profile-tab" id="tab-account">
+                <div class="tab-header">
+                    <h2 class="tab-title">Conta e Segurança</h2>
+                    <p class="tab-description">Gerencie sua senha e configurações de segurança</p>
+                </div>
+                
+                <div class="security-section">
+                    <div class="security-item">
+                        <div class="security-item-info">
+                            <h3>Alterar Senha</h3>
+                            <p>Atualize sua senha regularmente para manter sua conta segura</p>
+                        </div>
+                        <button class="btn btn-outline" onclick="openModal('modalEditPassword')">Alterar Senha</button>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-info">
+                            <h3>Autenticação de Dois Fatores</h3>
+                            <p>Adicione uma camada extra de segurança à sua conta</p>
+                            <span class="security-status inactive">Desativado</span>
+                        </div>
+                        <button class="btn btn-outline">Ativar 2FA</button>
+                    </div>
+
+                    
+                    <div class="security-item danger">
+                        <div class="security-item-info">
+                            <h3>Excluir Conta</h3>
+                            <p>Exclua permanentemente sua conta e todos os seus dados</p>
+                            <span class="security-status inactive">Desativado</span>
+                        </div>
+                        <button class="btn btn disabled ">Excluir Conta</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preferences Tab -->
+            <div class="profile-tab" id="tab-preferences">
+                <div class="tab-header">
+                    <h2 class="tab-title">Preferências</h2>
+                    <p class="tab-description">Personalize sua experiência na plataforma</p>
+                </div>
+                
+                <form method="POST" action="{% url 'profile_preferences' slug=school_user.school.slug %}" class="profile-form">
+                    {% csrf_token %}
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <h3>Tema</h3>
+                        
+                        </div>
+                            <select name="theme" class="form-select">
+                                <option value="auto">Selecione o tema...</option>
+                                <option value="light" {% if profile.theme == 'light' %}selected{% endif %}>Claro</option>
+                                <option value="dark" {% if profile.theme == 'dark' %}selected{% endif %}>Escuro</option>
+                            </select>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <h3>Perfil Público</h3>
+                            <p>Permita que outros usuários vejam seu perfil</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="public_profile" {% if profile.public_profile %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="preference-item">
+                        <div class="preference-info">
+                            <h3>Mostrar Progresso</h3>
+                            <p>Exiba seu progresso de aprendizado publicamente</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="show_progress" {% if user.profile.show_progress %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Notifications Tab -->
+            <div class="profile-tab" id="tab-notifications">
+                <div class="tab-header">
+                    <h2 class="tab-title">Notificações</h2>
+                    <p class="tab-description">Gerencie como você recebe notificações</p>
+                </div>
+                
+                <form method="POST" action="{% url 'profile_notifications' slug=school_user.school.slug %}" class="profile-form">
+                    {% csrf_token %}
+                    
+                    <h3 class="form-section-title">E-mail</h3>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>Novas Mensagens</h4>
+                            <p>Receba notificações quando alguém te enviar uma mensagem</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_messages" {% if profile.email_messages %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>Atualizações de Cursos</h4>
+                            <p>Seja notificado sobre novos conteúdos nos seus cursos</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_course_updates" {% if profile.email_course_updates %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>Marketing</h4>
+                            <p>Receba e-mails sobre novos cursos e promoções</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="email_marketing" {% if profile.email_marketing %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <h3 class="form-section-title">Push</h3>
+                    
+                    <div class="notification-item">
+                        <div class="notification-info">
+                            <h4>Notificações Push</h4>
+                            <p>Receba notificações push no navegador</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="push_notifications" {% if profile.push_notifications %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar Preferências</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Certificates Tab -->
+            <div class="profile-tab" id="tab-certificates">
+                <div class="tab-header">
+                    <h2 class="tab-title">Meus Certificados</h2>
+                    <p class="tab-description">Visualize e baixe seus certificados conquistados</p>
+                </div>
+                
+                <div class="certificates-grid">
+                    {% for certificate in certificates %}
+                    <div class="certificate-card">
+                        <div class="certificate-icon">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <rect x="4" y="8" width="40" height="32" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <path d="M4 16h40M12 24h24M12 30h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M32 32l4 8 4-2-2-6z" fill="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="certificate-title">{{ certificate.course.title }}</h3>
+                        <p class="certificate-date">Concluído em {{ certificate.issued_at|date:"d/m/Y" }}</p>
+                        <div class="certificate-actions">
+                            <a href="{% url 'certificate_view' certificate.id %}" class="btn btn-outline btn-sm">Visualizar</a>
+                            <a href="{% url 'certificate_download' certificate.id %}" class="btn btn-primary btn-sm">Baixar PDF</a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-certificates">
+                        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                            <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+                            <path d="M40 60h40M60 40v40" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+                        </svg>
+                        <h3>Nenhum certificado ainda</h3>
+                        <p>Complete seus cursos para ganhar certificados</p>
+                        <a href="{% url 'course_my_list' slug=school_user.school.slug %}" class="btn btn-primary">Meus Cursos</a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "themes/NeoLearn/includes/modalsForms/modal_change_password.html" with modal_id="modalEditPassword" modal_title="Mudar Senha" %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Tab Navigation
+document.querySelectorAll('.profile-nav-item').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const tabId = this.dataset.tab;
+        
+        // Update active nav item
+        document.querySelectorAll('.profile-nav-item').forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Update active tab
+        document.querySelectorAll('.profile-tab').forEach(tab => tab.classList.remove('active'));
+        document.getElementById('tab-' + tabId).classList.add('active');
+    });
+});
+
+// Avatar Upload
+document.getElementById('editAvatarBtn')?.addEventListener('click', function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('avatar', file);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            fetch('{% url "profile_avatar_upload" slug=school_user.school.slug %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+        }
+    };
+    input.click();
+});
+
+// Banner Upload
+document.getElementById('editBannerBtn')?.addEventListener('click', function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('banner', file);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            
+            fetch('{% url "profile_banner_upload" slug=school_user.school.slug %}', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let bannerImg = document.querySelector('.profile-banner-img');
+                    if (!bannerImg) {
+                        bannerImg = document.createElement('div');
+                        bannerImg.classList.add('profile-banner-img');
+                        document.querySelector('.profile-banner').prepend(bannerImg);
+                    }
+                    bannerImg.style.backgroundImage = `url(${data.banner_url}?t=${Date.now()})`;
+                    bannerImg.style.opacity = '0';
+                    setTimeout(() => bannerImg.style.opacity = '1', 100);
+                }
+            });
+
+        }
+    };
+    input.click();
+});
+
+</script>
+{% endblock %}

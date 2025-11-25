@@ -1,0 +1,63 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ school.name }}{% endblock %}</title>
+    <script>
+    (function() {
+    try {
+        // 1️⃣ — Tenta pegar o tema salvo no perfil (do servidor)
+        const savedTheme = "{{ profile.theme|default_if_none:'auto'|default:'auto' }}";
+        
+        // 2️⃣ — Tenta pegar o tema local (client-side)
+        const localTheme = localStorage.getItem('theme') || 'auto';
+        
+        // 3️⃣ — Define o tema base
+        let theme = savedTheme === 'auto' ? localTheme : savedTheme;
+        
+        // 4️⃣ — Se ainda for 'auto', usa preferência do sistema
+        if (theme === 'auto') {
+        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+
+        // 5️⃣ — Aplica o tema ao <html> via atributo (compatível com seu JS)
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    } catch (e) {
+        console.error('Erro ao aplicar tema:', e);
+    }
+    })();
+    </script>
+    <link rel="stylesheet" href="{% static 'themes/NeoLearn/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    
+    {% include 'themes/NeoLearn/includes/_header.html' %}
+    
+    <div class="layout-container">
+        {% block sidebar %}
+        {% include 'themes/NeoLearn/includes/_sidebar.html' %}
+        {% endblock %}
+        
+        <main class="main-content">
+            {% include 'themes/NeoLearn/includes/_flash_messages.html' %}
+            {% include "themes/NeoLearn/includes/modal_confirm.html" %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2025 NeoLearn. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+    
+    <script src="{% static 'themes/NeoLearn/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+</body>
+</html>

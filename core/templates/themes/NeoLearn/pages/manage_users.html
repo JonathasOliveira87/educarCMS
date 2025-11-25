@@ -1,0 +1,136 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+
+{% block title %}Gestão de Usuários - {{ school.name }}{% endblock %}
+{% block body_class %}manage-users-page{% endblock %}
+
+{% block content %}
+
+
+<div class="page-content">
+
+  <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Gestão de Usuários" subtitle="Gerencie provas, APOLs, atividades e quizzes deste curso." action_js="openModal('modalCreateUser')" action_label=" + Novo Usuário" %}
+  </div>
+
+  <!-- ======= Analytics Cards ======= -->
+  <div class="analytics-grid">
+      {% include "themes/NeoLearn/components/analytics-card.html" with icon="🧑‍🎓" value=total_students label="Total de Alunos" %}
+      {% include "themes/NeoLearn/components/analytics-card.html" with icon="🧑‍🏫" value=total_teachers label="Aulas de Professores" %}
+      {% include "themes/NeoLearn/components/analytics-card.html" with icon="🟢" value=active_users label="Usuários Ativos" %}
+      {% include "themes/NeoLearn/components/analytics-card.html" with icon="📅" value=new_this_month label="Novos Este Mês" %}
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+      <div class="filter-search">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path
+                  d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+              />
+          </svg>
+          <input type="search" placeholder="Buscar cursos, professores..." aria-label="Buscar" class="filter-search-input" id="searchInput"  onkeyup="filterUsers()" >
+      </div>
+
+
+      <div class="filter-tabs">
+          <a href="?filter=all" class="filter-tab {% if filter_type == 'all' %}active{% endif %}">
+              Todos <span class="filter-count">{{ total_users }}</span>
+          </a>
+
+          <a href="?filter=students" class="filter-tab {% if filter_type == 'students' %}active{% endif %}">
+              Alunos <span class="filter-count">{{ total_students }}</span>
+          </a>
+
+          <a href="?filter=teachers" class="filter-tab {% if filter_type == 'teachers' %}active{% endif %}">
+              Professores <span class="filter-count">{{ total_teachers }}</span>
+          </a>
+
+          <a href="?filter=admins" class="filter-tab {% if filter_type == 'admins' %}active{% endif %}">
+              Admins <span class="filter-count">{{ total_admins }}</span>
+          </a>
+
+          <a href="?filter=inactive" class="filter-tab {% if filter_type == 'inactive' %}active{% endif %}">
+              Inativos <span class="filter-count">{{ total_inactive }}</span>
+          </a>
+      </div>
+
+
+  </div>
+
+  <!-- Tabela de Usuários -->
+  {% include 'themes/NeoLearn/components/user_table.html' %}
+</div>
+
+
+{% include "themes/NeoLearn/includes/modalsForms/modal_create_user.html" with modal_id="modalCreateUser" modal_title="Novo Usuário" %}
+{% include "themes/NeoLearn/includes/modalsForms/modal_update_user.html" with modal_id="modalEditUser" modal_title="Editar Usuário" %}
+
+<script>
+// ===== SEARCH/FILTER FUNCTION =====
+function filterUsers() {
+  const input = document.getElementById('searchInput');
+  const filter = input.value.toLowerCase();
+  const table = document.getElementById('usersTable');
+  const rows = table.getElementsByTagName('tr');
+
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    const cells = row.getElementsByTagName('td');
+    let found = false;
+
+    for (let j = 0; j < cells.length; j++) {
+      const cell = cells[j];
+      if (cell) {
+        const textValue = cell.textContent || cell.innerText;
+        if (textValue.toLowerCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+    }
+
+    row.style.display = found ? '' : 'none';
+  }
+}
+// ===== FILTER TABS FUNCTION =====
+document.querySelectorAll(".filter-tab").forEach(btn => {
+    btn.addEventListener("click", function () {
+
+        // Ocultar paginação ao filtrar
+        const pagination = document.querySelector(".pagination");
+        if (pagination) pagination.style.display = "none";
+
+        // Ativar tab
+        document.querySelectorAll(".filter-tab").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        const filter = this.getAttribute("data-filter");
+        const rows = document.querySelectorAll("#usersTable tbody tr");
+
+        // Mostrar todas as linhas primeiro
+        rows.forEach(row => row.style.display = "");
+
+        rows.forEach(row => {
+            const role = row.getAttribute("data-role");
+            const status = row.getAttribute("data-status");
+
+            let show = true;
+
+            if (filter === "students") show = role === "student";
+            else if (filter === "teachers") show = role === "teacher";
+            else if (filter === "admins") show = role === "admin" || role === "superadmin";
+            else if (filter === "inactive") show = status === "inactive";
+
+            row.style.display = show ? "" : "none";
+        });
+    });
+});
+
+</script>
+{% endblock %}

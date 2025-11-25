@@ -1,0 +1,63 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Estatísticas - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs">
+  <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+  <a href="{% url 'assessment_list' school.slug assessment.course.id %}">Avaliações</a> 
+  <strong>Estatísticas</strong>
+</div>
+
+ <!-- ======= Page Hearder ======= -->
+<div class="page-header">
+  {% include "themes/NeoLearn/components/page_header.html" with title="Estatísticas da avaliação" subtitle="Veja o desempenho geral da turma e quais questões estão mais difíceis." %}
+</div>
+
+
+  <div class="grid two-cols gap-lg">
+
+    <div class="card">
+      <h2>Resumo geral</h2>
+      <p><strong>Tentativas corrigidas:</strong> {{ total }}</p>
+      <p><strong>Média da turma:</strong> {{ avg_score|floatformat:2 }}</p>
+
+      <p class="helper-text">
+        Considere ajustar a avaliação se a média estiver muito baixa ou muito alta em relação ao esperado.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Questões mais difíceis</h2>
+      {% if difficult_questions %}
+        <table class="table clean">
+          <thead>
+            <tr>
+              <th>Questão</th>
+              <th>% de acertos</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in difficult_questions %}
+              <tr>
+                <td>{{ item.question.text|truncatechars:80 }}</td>
+                <td>{{ item.correct_rate|floatformat:1 }}%</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>Nenhuma resposta registrada ainda.</p>
+          <!-- Empty State -->
+          {% include "themes/NeoLearn/components/empty_state.html" with title="Nenhuma resposta" message="Nenhuma resposta registrada ainda" %}
+      {% endif %}
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

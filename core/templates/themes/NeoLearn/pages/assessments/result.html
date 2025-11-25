@@ -1,0 +1,210 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Resultado - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+<STyle>
+/* ======= Question Review Styles ======= */
+.question-review {
+  padding: 1.25rem;
+  margin: 1rem 0;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-500);
+  transition: all 0.2s ease;
+}
+
+.question-review:hover {
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);
+}
+
+.question-text {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0 0 1rem 0;
+  line-height: 1.7;
+}
+
+.question-text strong {
+  color: #6366f1;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.question-review > p {
+  margin: 0.5rem 0;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.question-review > p strong {
+  color: var(--secondary-500);
+  font-weight: 600;
+}
+
+/* ======= Correct/Incorrect Indicators ======= */
+.question-review p:has(+ p) {
+  background: transparent;
+}
+
+/* Correct answer styling */
+.question-review:has(p:last-of-type:contains("Correta")) {
+  border-left-color: #10b981;
+}
+
+/* File download link */
+.question-review a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6366f1;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.08);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.question-review a::before {
+  content: "📎";
+}
+
+.question-review a:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #4f46e5;
+}
+
+/* ======= Status Badge Styles ======= */
+/* Para usar com classes adicionais se necessário */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.badge-error {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.badge-pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+
+.question-review {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+/* ======= Responsive Adjustments ======= */
+@media (max-width: 640px) {
+  .question-review {
+    padding: 1rem;
+  }
+
+  .breadcrumbs {
+    font-size: 0.8125rem;
+  }
+}
+
+</STyle>
+  <!-- ======= Breadcrumbs ======= -->
+  <p class="breadcrumbs">
+    <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+    <a href="{% url 'assessment_detail' school.slug assessment.id %}">Detalhes da avaliação</a>
+    <strong>Resultado da avaliação</strong>
+  </p>
+
+  <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+      {% include "themes/NeoLearn/components/page_header.html" with title="Resultado da Avaliação" subtitle=assessment.title%}
+  </div>
+
+
+  <div class="grid two-cols gap-lg">
+
+    <div class="card">
+      <h2>Resumo</h2>
+      <p><strong>Tentativa </strong> {{ attempt.attempt_number }}</p>
+      <p><strong>Curso:</strong> {{ assessment.course.title }}</p>
+      {% if assessment.subject.title %}
+      <p><strong>Matéria:</strong> {{ assessment.subject.title }}</p>
+      {% endif %}
+      <p><strong>Nota obtida:</strong> {{ attempt.score }}</p>
+      <p><strong>% de acertos (objetivas):</strong> {{ percent_correct|floatformat:1 }}%</p>
+      <p><strong>Início:</strong> {{ attempt.started_at|date:"d/m/Y H:i" }}</p>
+      <p><strong>Fim:</strong> {{ attempt.finished_at|date:"d/m/Y H:i" }}</p>
+
+      <a href="{% url 'assessment_detail' school.slug assessment.id %}"
+         class="btn btn-primary">
+        Voltar para a avaliação
+      </a>
+    </div>
+
+    <div class="card">
+      <h2>Questões</h2>
+
+      {% for answer in answers %}
+        <div class="question-review">
+          <p class="question-text">
+            <strong>Q{{ forloop.counter }}.</strong> {{ answer.question.text }}
+          </p>
+
+          {% if answer.question.type in 'multiple_choice,true_false' %}
+            <p>
+              <strong>Sua resposta:</strong>
+              {% if answer.choice %}
+                {{ answer.choice.text }}
+              {% else %}
+                Não respondida
+              {% endif %}
+            </p>
+            <p>
+              <strong>Correta?</strong>
+              {% if answer.is_correct %}
+                ✅ Correta
+              {% else %}
+                ❌ Incorreta
+              {% endif %}
+            </p>
+
+          {% elif answer.question.type == 'essay' %}
+            <p><strong>Sua resposta:</strong></p>
+            <p>{{ answer.text_answer|linebreaks }}</p>
+            <p class="actions">
+              Esta questão será corrigida pelo professor.
+            </p>
+
+          {% elif answer.question.type == 'file' %}
+            <p><strong>Arquivo enviado:</strong></p>
+            {% if answer.file_answer %}
+              <a href="{{ answer.file_answer.url }}" target="_blank">
+                Baixar arquivo
+              </a>
+            {% else %}
+              Nenhum arquivo enviado.
+            {% endif %}
+          {% endif %}
+        </div>
+        <hr>
+      {% endfor %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}

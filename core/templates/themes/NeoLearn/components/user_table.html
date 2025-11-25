@@ -1,0 +1,117 @@
+{% if page_obj %}
+<div class="table-responsive">
+  <table class="neo-table neo-table--cards" id="usersTable">
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>RU</th>
+        <th>Email</th>
+        <th>Função</th>
+        <th>Telefone</th>
+        <th>Status</th>
+        <th class="table-actions">Ações</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for u in page_obj %}
+      <tr 
+        data-role="{% if u.user.is_superuser %}superadmin{% else %}{{ u.role }}{% endif %}"
+        data-status="{% if u.user.is_active %}active{% else %}inactive{% endif %}"
+      >
+        <td data-label="Usuário">
+          <div class="user-info">
+            {% if u.user.profile.avatar %}
+              <img 
+                src="{{ u.user.profile.avatar.url }}" 
+                alt="{{ u.user.first_name }} " 
+                class="avatar-sm">
+            {% else %}
+              <div class="avatar-placeholder">
+                {{ u.user.first_name|slice:":1"|upper }}{{ u.user.last_name|slice:":1"|upper }}
+              </div>
+            {% endif %}
+
+            <span class="user-name">{{ u.user.get_full_name }}</span>
+          </div>
+        </td>
+
+        <td data-label="RU">
+          <span class="user-email">{{ u.user.username }}</span>
+        </td>
+        
+        <td data-label="Email">
+          <span class="user-email">{{ u.user.email }}</span>
+        </td>
+        
+        <td data-label="Função">
+          {% if u.role == 'admin' %}
+            <span class="role-badge admin">Admin</span>
+          {% elif u.role == 'teacher' %}
+            <span class="role-badge teacher">Prof.</span>
+          {% else %}
+            <span class="role-badge student">Aluno</span>
+          {% endif %}
+        </td>
+        
+        <td data-label="Telefone">
+          <span class="user-phone">{{ u.phone|default:"—" }}</span>
+        </td>
+        
+        <td data-label="Status">
+          {% if u.user.is_active %}
+            <span class="status-badge active">Ativo</span>
+          {% else %}
+            <span class="status-badge inactive">Inativo</span>
+          {% endif %}
+        </td>
+        
+        <td data-label="Ações" class="table-actions">
+          {% if u.role == 'admin' %}
+            <button class="btn btn-icon disabled" title="Ação bloqueada (Administrador)" disabled>📝</button>
+            <button class="btn btn-icon disabled" title="Ação bloqueada (Administrador)" disabled>🗑️</button>
+
+          {% else %}
+            <button 
+              class="btn-icon edit"
+              title="Editar Usuário"
+              data-url="{% url 'edit_user' school.slug u.id %}"
+              data-name="{{ u.user.get_full_name }}"
+              data-email="{{ u.user.email }}"
+              data-phone="{{ u.phone|default:'' }}"
+              data-role="{{ u.role }}"
+              data-ru="{{ u.user.username }}"
+              data-status="{% if u.user.is_active %}active{% else %}inactive{% endif %}"
+              onclick="openEditModal(this)"
+            >📝</button>
+
+            <button 
+              class="btn-icon delete"
+              data-url="{% url 'delete_user' school.slug u.id %}"
+              data-message="Tem certeza que deseja excluir &#10; '{{ u.user.get_full_name|default:u.user.username }} ?'"
+              onclick="openConfirmDelete(this)"
+              title="Deletar Usuário"
+            >🗑️</button>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+    <tfoot>
+      <tr>
+        <th colspan="7">Total de usuários: {{ page_obj.paginator.count }}</th>
+      </tr>
+    </tfoot>
+  </table>
+
+  {% include 'themes/NeoLearn/components/pagination.html' %}
+</div>
+
+{% else %}
+<div class="empty-state">
+  <i class="ph ph-users-three empty-icon"></i>
+  <h3>Nenhum usuário encontrado</h3>
+  <p>Comece adicionando o primeiro usuário da sua escola</p>
+</div>
+{% endif %}

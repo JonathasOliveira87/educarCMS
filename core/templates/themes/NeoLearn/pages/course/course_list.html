@@ -1,0 +1,353 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static custom_filters %}
+
+{% block title %}Meus Cursos - NeoLearn{% endblock %}
+{% block body_class %}courses-page{% endblock %}
+
+{% block content %}
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+{% url 'course_create' school.slug as course_create %}
+{% include "themes/NeoLearn/components/page_header.html" with title="Meus Cursos" subtitle="Gerencie e acompanhe seus cursos"  action_url=course_create action_label=" + Novo Curso" %}
+</div>
+
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+    <div class="filter-search">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M9 17A8 8 0 1 0 9 1a8 8 0 0 0 0 16zM19 19l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <input type="search" placeholder="Buscar cursos..." class="filter-search-input">
+    </div>
+    
+    <div class="filter-tabs">
+        <button class="filter-tab active" data-filter="all">
+            Todos
+            <span class="filter-count">{{ courses_count }}</span>
+        </button>
+        <button class="filter-tab" data-filter="active">
+            Ativos
+            <span class="filter-count">{{ active_courses_count }}</span>
+        </button>
+        <button class="filter-tab" data-filter="draft">
+            Rascunhos
+            <span class="filter-count">{{ draft_courses_count }}</span>
+        </button>
+        <button class="filter-tab" data-filter="archived">
+            Arquivados
+            <span class="filter-count">{{ archived_courses_count }}</span>
+        </button>
+    </div>
+    
+</div>
+
+<!-- Courses Grid -->
+<div class="courses-grid" id="coursesGrid">
+    {% for course in courses %}
+    <div class="course-card-large" data-status="{{ course.status }}">
+        <div class="course-card-image">
+            {% load custom_filters %}
+
+            {% if course.video_intro %}
+
+            {% if 'youtube.com' in course.video_intro or 'youtu.be' in course.video_intro %}
+            <iframe 
+                width="100%" 
+                height="100%" 
+                src="{{ course.video_intro|youtube_embed }}" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerpolicy="strict-origin-when-cross-origin" 
+                allowfullscreen>
+            </iframe>
+            
+            {% else %}
+                <video src="{{ course.video_intro.url }}" controls width="100%"></video>
+            {% endif %}
+            {% elif course.thumbnail %}
+            <img src="{{ course.thumbnail.url }}" alt="{{ course.title|title }}">
+            {% else %}
+            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop" alt="{{ course.title|title }}">
+            {% endif %}
+            
+            <div class="course-card-overlay">
+                <a href="{% url 'course_detail' slug=school_user.school.slug course_id=course.id %}" class="overlay-btn">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M1 10s3-6 9-6 9 6 9 6-3 6-9 6-9-6-9-6z" stroke="currentColor" stroke-width="1.5"/>
+                        <circle cx="10" cy="10" r="2" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Visualizar
+                </a>
+            </div>
+            
+            {% if course.status == 'draft' %}
+            <span class="status-badge draft">Rascunho</span>
+            {% elif course.status == 'active' %}
+            <span class="status-badge active">Ativo</span>
+            {% elif course.status == 'archived' %}
+            <span class="status-badge archived">Arquivado</span>
+            {% endif %}
+        </div>
+        
+        <div class="course-card-content">
+            <div class="course-card-header">
+                <div class="course-category">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M2 6h12" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    {{ course.category.name|default:"Sem categoria" }}
+                </div>
+                
+                <div class="course-menu">
+                    <button class="menu-trigger" aria-label="Menu do curso">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="5" r="1.5" fill="currentColor"/>
+                            <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+                            <circle cx="10" cy="15" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </button>
+                    <div class="menu-dropdown">
+                        <a href="{% url 'course_edit' slug=school_user.school.slug course_id=course.id %}" class="menu-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M11.5 2a1.5 1.5 0 0 1 2.121 0l.379.379a1.5 1.5 0 0 1 0 2.121L5 13.5l-3 .5.5-3L11.5 2z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            Editar
+                        </a>
+                        <a href="{% url 'course_duplicate' slug=school_user.school.slug course_id=course.id %}" class="menu-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M2 8V3a1 1 0 0 1 1-1h5M8 14h5a1 1 0 0 0 1-1V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            Duplicar
+                        </a>
+                        <a href="{% url 'course_analytics' slug=school_user.school.slug course_id=course.id %}" class="menu-item">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M2 14V9M8 14V2M14 14V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            Análises
+                        </a>
+                        <div class="menu-divider"></div>
+                        <form id="deleteForm{{ course.id }}" 
+                            action="{% url 'course_delete' slug=school_user.school.slug course_id=course.id %}" 
+                            method="post" 
+                            style="display:none;">
+                            {% csrf_token %}
+                        </form>
+
+
+
+                        <button 
+                            class="menu-item danger"
+                            onclick="openConfirmDelete(this)"
+                            data-url="{% url 'course_delete' slug=school_user.school.slug course_id=course.id %}"
+                            data-message="Tem certeza que deseja excluir o curso &#10; '{{ course.title|title }}?'"
+                            onclick="openConfirmDelete(this)"
+                            title="Deletar Curso"
+                            >
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 4h10M5 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1M6 7v4M10 7v4M4 4l.5 9a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1l.5-9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            </svg>
+                            Excluir
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+            
+            <h3 class="course-card-title">
+                <a href="{% url 'course_detail' slug=school_user.school.slug course_id=course.id %}">{{ course.title|title|truncatechars:37 }}</a>
+            </h3>
+            
+            <p class="course-card-description">
+                {{ course.short_description|truncatewords:20 }}
+            </p>
+            
+            <div class="course-card-meta">
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13 14v-1a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3v1M8 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>{{ course.num_students }} alunos</span>
+                </div>
+                
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 1L1 4l7 3 7-3-7-3zM1 12l7 3 7-3" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>{{ course.num_lessons }} aulas</span>
+                </div>
+                
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 4v4l2 2" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    <span>{{ course.total_duration_display }}</span>
+
+                </div>
+            </div>
+            
+            <div class="course-card-progress">
+
+
+                <div class="progress-info">
+                    <span class="progress-label">Progresso médio</span>
+                    <span class="progress-percentage">{{ course.avg_progress|default:0|floatformat:1 }}%</span>
+                </div>                                             
+
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ course.avg_progress|default:0|floatformat:0 }}%;"></div>
+                </div>
+
+                
+            </div>
+            
+            <div class="course-card-footer">
+                <div class="course-instructor">
+                    <div class="instructor-avatar">
+                        {% if course.instructor.profile.avatar %}
+                        <img src="{{ course.instructor.profile.avatar.url }}" alt="{{ course.instructor.get_full_name }}">
+                        {% else %}
+                        <div class="avatar-placeholder">{{ course.instructor.username.0|upper }}</div>
+                        {% endif %}
+                    </div>
+                    <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                </div>
+                
+                <span class="course-updated">
+                    Atualizado {{ course.updated_at|timesince }} atrás
+                </span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+            <path d="M60 30L30 45v30l30 15 30-15V45L60 30z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+            <circle cx="60" cy="60" r="8" fill="currentColor" opacity="0.3"/>
+        </svg>
+        <h3>Nenhum curso encontrado</h3>
+        <p>Comece criando seu primeiro curso ou ajuste os filtros.</p>
+        <a href="{% url 'course_create' slug=school_user.school.slug %}" class="btn btn-primary">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Criar Primeiro Curso
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if courses.has_other_pages %}
+<div class="pagination">
+    {% if courses.has_previous %}
+    <a href="?page={{ courses.previous_page_number }}" class="pagination-btn">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Anterior
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Anterior
+    </span>
+    {% endif %}
+    
+    <div class="pagination-numbers">
+        {% for num in courses.paginator.page_range %}
+            {% if courses.number == num %}
+            <span class="pagination-number active">{{ num }}</span>
+            {% elif num > courses.number|add:'-3' and num < courses.number|add:'3' %}
+            <a href="?page={{ num }}" class="pagination-number">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+    </div>
+    
+    {% if courses.has_next %}
+    <a href="?page={{ courses.next_page_number }}" class="pagination-btn">
+        Próxima
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </a>
+    {% else %}
+    <span class="pagination-btn disabled">
+        Próxima
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Filter tabs
+document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        
+        const filter = this.dataset.filter;
+        const cards = document.querySelectorAll('.course-card-large');
+        
+        cards.forEach(card => {
+            if (filter === 'all' || card.dataset.status === filter) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Search
+const searchInput = document.querySelector('.filter-search-input');
+searchInput?.addEventListener('input', debounce(function(e) {
+    const query = e.target.value.toLowerCase();
+    const cards = document.querySelectorAll('.course-card-large');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('.course-card-title').textContent.toLowerCase();
+        const description = card.querySelector('.course-card-description').textContent.toLowerCase();
+        
+        if (title.includes(query) || description.includes(query)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}, 300));
+
+// Course menu
+document.querySelectorAll('.menu-trigger').forEach(trigger => {
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const menu = this.nextElementSibling;
+        
+        // Close other menus
+        document.querySelectorAll('.menu-dropdown').forEach(m => {
+            if (m !== menu) m.classList.remove('active');
+        });
+        
+        menu.classList.toggle('active');
+    });
+});
+
+document.addEventListener('click', function() {
+    document.querySelectorAll('.menu-dropdown').forEach(m => m.classList.remove('active'));
+});
+</script>
+{% endblock %}

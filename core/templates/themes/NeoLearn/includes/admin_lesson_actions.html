@@ -1,0 +1,78 @@
+{# ======================================================================== #}
+{#  admin_lesson_actions.html — Ações administrativas para cada aula       #}
+{# ======================================================================== #}
+
+<div class="lesson-actions">
+
+    {# ========== EDITAR AULA ========== #}
+    {% if lesson.videos.exists %}
+    {% with video=lesson.videos.first %}
+    <button 
+        class="btn-icon"
+        title="Editar aula"
+        data-id="{{ lesson.id }}"
+        data-subject="{{ subject.id }}"
+        data-title="{{ lesson.title|escape }}"
+        data-video-title="{{ video.title }}"
+        data-video-file="{{ video.file.url }}"
+        data-duration="{{ video.duration }}"
+        data-description="{{ lesson.description|default:''|escape }}"
+        data-type="{{ lesson.content_type|default:'video' }}"
+        data-content="{{ lesson.content|default:''|escape }}"
+        data-status="{{ lesson.status }}"
+        data-order="{{ lesson.order }}"
+        data-action="{% url 'lesson_update' school.slug course.id subject.id lesson.id %}"
+        onclick="openEditLessonModal(this)"
+    >
+
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M11 4H4a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-7" 
+                stroke="currentColor" stroke-width="2"/>
+            <path d="M13.5 2.5a2.121 2.121 0 113 3L9 13l-4 1 1-4 7.5-7.5z" 
+                stroke="currentColor" stroke-width="2"/>
+        </svg>
+    </button>
+
+    {% endwith %}
+    {% else %}
+
+    <button 
+        class="btn-icon"
+        title="Editar aula"
+        data-id="{{ lesson.id }}"
+        data-subject="{{ subject.id }}"
+        data-title="{{ lesson.title|escape }}"
+        data-description="{{ lesson.description|default:''|escape }}"
+        data-type="{{ lesson.content_type|default:'video' }}"
+        data-content="{{ lesson.content|default:''|escape }}"
+        data-duration="{{ lesson.duration }}"
+        data-status="{{ lesson.status }}"
+        data-order="{{ lesson.order }}"
+        data-action="{% url 'lesson_update' school.slug course.id subject.id lesson.id %}"
+        onclick="openEditLessonModal(this)"
+    >
+
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M11 4H4a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-7" 
+                stroke="currentColor" stroke-width="2"/>
+            <path d="M13.5 2.5a2.121 2.121 0 113 3L9 13l-4 1 1-4 7.5-7.5z" 
+                stroke="currentColor" stroke-width="2"/>
+        </svg>
+    </button>
+    {% endif %}
+
+    {# ========== EXCLUIR AULA ========== #}
+    <button 
+        class="btn-icon"
+        title="Excluir aula"
+        data-url="{% url 'lesson_delete' school.slug course.id subject.id lesson.id %}"
+        data-message="Tem certeza que deseja excluir a aula '{{ lesson.title }}'? Essa ação é permanente."
+        onclick="openConfirmDelete(this)">
+        
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" 
+                  stroke="currentColor" stroke-width="2"/>
+        </svg>
+    </button>
+
+</div>

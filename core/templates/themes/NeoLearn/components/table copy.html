@@ -1,0 +1,16 @@
+<div class="table-responsive">
+  <table class="users-table">
+    <thead>
+      <tr>
+        {% for h in headers %}
+          <th>{{ h }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+
+    <tbody>
+      {% include rows_template %}
+    </tbody>
+
+  </table>
+</div>

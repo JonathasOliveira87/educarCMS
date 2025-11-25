@@ -1,0 +1,49 @@
+<div class="modal" id="confirmModal">
+    <div class="modal-overlay" onclick="closeConfirmModal()"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title" id="confirmModalTitle">Confirmação</h3>
+            <button type="button" class="modal-close" onclick="closeConfirmModal()">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="modal-body">
+            <p id="confirmModalMessage">Tem certeza de que deseja continuar esta ação?</p>
+        </div>
+
+        <div class="modal-footer">
+            <form id="confirmModalForm" method="post" style="display: none;">
+                {% csrf_token %}
+            </form>
+
+            <button type="button" class="btn btn-outline" onclick="closeConfirmModal()">Cancelar</button>
+            <button type="button" class="btn btn-danger" id="confirmModalConfirm">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentForm = null;
+
+function openConfirmModal(message, formId, title = "Confirmação", confirmText = "Confirmar") {
+    document.getElementById('confirmModalTitle').innerText = title;
+    document.getElementById('confirmModalMessage').innerText = message;
+    document.getElementById('confirmModalConfirm').innerText = confirmText;
+    currentForm = document.getElementById(formId);
+    document.getElementById('confirmModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+document.getElementById('confirmModalConfirm').addEventListener('click', () => {
+    if (currentForm) currentForm.submit();
+    closeConfirmModal();
+});
+</script>

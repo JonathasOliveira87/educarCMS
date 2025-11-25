@@ -1,0 +1,120 @@
+{% load static %}
+<aside class="sidebar" id="sidebar">
+    <nav class="sidebar-nav">
+        <div class="nav-section">
+            <h3 class="nav-section-title">Principal</h3>
+            <ul class="nav-list">
+                
+                <li>
+                    <a href="{% url 'school_dashboard' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'school_dashboard' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                {% if user.is_staff %}
+                <li>
+                    <a href="{% url 'course_list' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'course_list' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 6h12M4 10h12M4 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Gerenciar Cursos</span>
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a href="{% url 'course_my_list' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'course_my_list' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M4 6h12M4 10h12M4 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Meus Cursos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'course_catalog' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'course_catalog' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M3 7l7-4 7 4M3 7v8l7 4M3 7l7 4m7-4v8l-7 4m0-8v8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Catálogo</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% if user.is_staff %}
+        <div class="nav-section">
+            <h3 class="nav-section-title">Gestão</h3>
+            <ul class="nav-list">
+                <li>
+                    <a href="{% url 'manage_users' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'student_list' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M14 17v-1.5a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3V17M8.5 8.5a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 11l-2 2-2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Alunos</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-item {% if request.resolver_match.url_name == 'plugin_list' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <rect x="4" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="4" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        <span>Plugins</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+        
+        <div class="nav-section">
+            <h3 class="nav-section-title">Configurações</h3>
+            <ul class="nav-list">
+                <li>
+                    <a href="{% url 'profile' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'profile_detail' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M16 17v-1.5a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3V17M10 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>Perfil</span>
+                    </a>
+                </li>
+                {% if user.is_staff %}
+                <li>
+<a href="{% url 'school_settings' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'school_settings' %}active{% endif %}">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 17V9L10 3L17 9V17H12V12H8V17H3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M10 3V1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="10" cy="1" r="0.5" fill="currentColor"/>
+    </svg>
+    <span>Escola</span>
+</a>
+                </li>
+                {% endif %}
+
+                <li>
+                    <a href="{% url 'auth_logout' slug=school_user.school.slug %}" class="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Sair
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="upgrade-card">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h4>Upgrade Pro</h4>
+            <p>Acesse recursos avançados</p>
+            <button class="btn btn-primary btn-sm">Upgrade</button>
+        </div>
+    </div>
+</aside>

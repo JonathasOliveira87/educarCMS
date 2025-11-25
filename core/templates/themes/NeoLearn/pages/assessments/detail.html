@@ -1,0 +1,248 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}{{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<style>
+  /* ======================================
+   Assessment Detail Page - NeoLearn Theme
+   ====================================== */
+
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+
+.gap-lg {
+  gap: 2rem;
+}
+
+/* Card Component */
+.card {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  transition: box-shadow 0.3s;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+
+.card p {
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+/* Meta List */
+.meta-list {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0;
+}
+
+.meta-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+}
+
+.meta-list li:last-child {
+  border-bottom: none;
+}
+
+.meta-list li strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-right: 1rem;
+}
+
+
+
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: ar(--text-primary);
+}
+
+.empty-state h3 {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+  font-size: 0.9375rem;
+  color: ar(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+
+  .meta-list li {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .table.clean {
+    font-size: 0.875rem;
+  }
+
+  .table.clean th,
+  .table.clean td {
+    padding: 0.75rem 0.5rem;
+  }
+
+}
+
+
+</style>
+
+<div class="page-container course-detail-page">
+
+
+<!-- ======= Breadcrumbs ======= -->
+<p class="breadcrumbs">
+  <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+  <strong>Detalhes da avaliação</strong>
+</p>
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+{% if assessment.subject %}
+    {% with "Avaliação do curso: "|add:assessment.subject.title as sub %}
+        {% include "themes/NeoLearn/components/page_header.html" with title=assessment.title subtitle=sub %}
+    {% endwith %}
+{% else %}
+    {% with "Avaliação do curso: "|add:assessment.course.title as sub %}
+        {% include "themes/NeoLearn/components/page_header.html" with title=assessment.title subtitle=sub %}
+    {% endwith %}
+{% endif %}
+</div>
+
+<div class="grid two-cols gap-lg">
+
+  <div class="card">
+    <h2>Informações da avaliação</h2>
+    <p>{{ assessment.description}}</p>
+    <ul class="meta-list">
+      <li><strong>Tipo:</strong> {{ assessment.get_type_display }}</li>
+      <li><strong>Peso:</strong> {{ assessment.weight }}%</li>
+      <li><strong>Questões:</strong> {{ assessment.questions.count }}</li>
+      <li>
+        <strong>Tentativas permitidas:</strong> {{ assessment.attempts_allowed }}
+      </li>
+      <li>
+        <strong>Tempo limite:</strong>
+        {% if assessment.time_limit %}
+          {{ assessment.time_limit }} min
+        {% else %}
+          Sem limite
+        {% endif %}
+      </li>
+      <li>
+        <strong>Disponível:</strong>
+        {% if assessment.open_at %}
+          de {{ assessment.open_at|date:"d/m/Y H:i" }}
+        {% else %}
+          imediatamente
+        {% endif %}
+        {% if assessment.close_at %}
+          até {{ assessment.close_at|date:"d/m/Y H:i" }}
+        {% endif %}
+      </li>
+    </ul>
+
+    {% if school_user.role == 'student' and is_enrolled %}
+      {% with attempts|length as used %}
+        {% if used < assessment.attempts_allowed %}
+          <a href="{% url 'assessment_start' school.slug assessment.id %}" class="btn btn-primary">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <path d="M5 3l10 6-10 6V3z" fill="currentColor"/>
+              </svg>
+              <span>Iniciar Avaliação</span>
+          </a>
+
+          <p class="helper-text">
+            Você já usou {{ used }} de {{ assessment.attempts_allowed }} tentativas.
+          </p>
+        {% else %}
+          <div class="alert warning">
+            Você já utilizou todas as tentativas disponíveis.
+          </div>
+        {% endif %}
+      {% endwith %}
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      {% if attempts %}
+        <h2>Histórico de tentativas</h2>
+        <table class="neo-table neo-table--cards">
+          <thead>
+            <tr>
+              <th>tentativa</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Nota</th>
+              <th class="table-actions">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for attempt in attempts %}
+              <tr>
+                <td data-label="Tentativa">{{ attempt.attempt_number }}</td>
+                <td data-label="Início">{{ attempt.started_at|date:"d/m/Y H:i" }}</td>
+                <td data-label="fim">
+                  {% if attempt.finished_at %}
+                    {{ attempt.finished_at|date:"d/m/Y H:i" }}
+                  {% else %}
+                    Em andamento
+                  {% endif %}
+                </td>
+                <td data-label="Nota">
+                  {% if attempt.score != None %}
+                    {{ attempt.score }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="table-actions">
+                  {% if attempt.is_submitted %}
+                    <a href="{% url 'assessment_result' school.slug assessment.id attempt.id %}"
+                        class="btn btn-success">
+                      Ver resultado
+                    </a>
+                  {% else %}
+                    <a href="{% url 'assessment_take' school.slug assessment.id attempt.id %}"
+                        class="btn btn-secondary">
+                      Continuar
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        {% include "themes/NeoLearn/components/empty_state.html" with title="Histórico de tentativas" message="Você ainda não fez nenhuma tentativa nesta avaliação." %}
+      {% endif %}
+    
+    </div>
+  </div>
+
+</div>
+{% endblock %}

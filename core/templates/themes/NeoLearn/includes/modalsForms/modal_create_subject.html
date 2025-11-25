@@ -1,0 +1,47 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+
+    <form method="POST" action="{% url 'subject_create' school.slug course.id %}" class="modal-body">
+      {% csrf_token %}
+      <div class="modal-body">
+
+        <!-- Título -->
+        <div class="form-group">
+          <label class="form-label">
+            Título da Matéria
+            <span class="required-mark">*</span>
+          </label>
+          <input type="text" name="title" id="moduleTitle" class="form-input" placeholder="Ex: Introdução ao Django" required>
+        </div>
+ 
+
+        <!-- Descrição -->
+        <div class="form-group">
+          <label class="form-label">Descrição</label>
+          <textarea name="description" id="moduleDescription" class="form-textarea" rows="3" placeholder="Descreva brevemente esta matéria..."></textarea>
+        </div>
+
+        <!-- Ordem e Status -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Ordem</label>
+            <input type="number" name="order" id="moduleOrder" class="form-input" min="1" value="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" id="moduleStatus" class="form-select">
+              <option value="draft">Rascunho</option>
+              <option value="published">Publicado</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('{{ modal_id }}')">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar Matéria</button>
+      </div>
+    </form>
+
+{% endblock %}

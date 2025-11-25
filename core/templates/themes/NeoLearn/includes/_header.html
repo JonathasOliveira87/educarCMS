@@ -1,0 +1,91 @@
+{% load static %}
+<header class="header">
+    <div class="header-container">
+        <div class="header-left">
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a href="{% url 'school_dashboard' slug=school_user.school.slug %}" class="logo">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect width="32" height="32" rx="8" fill="currentColor"/>
+                    <path d="M16 8L8 14V24H14V19H18V24H24V14L16 8Z" fill="white"/>
+                </svg>
+                <span class="logo-text">{{ school.name }}</span>
+            </a>
+        </div>
+        
+
+        
+        <div class="header-right">
+            <button class="icon-btn theme-toggle" id="themeToggle" aria-label="Alternar tema">
+                <svg class="sun-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <circle cx="10" cy="10" r="4" stroke="currentColor" stroke-width="2"/>
+                    <path d="M10 2v2M10 16v2M18 10h-2M4 10H2M15.66 4.34l-1.41 1.41M5.75 14.25l-1.41 1.41M15.66 15.66l-1.41-1.41M5.75 5.75L4.34 4.34" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <svg class="moon-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" style="display:none;">
+                    <path d="M17 10.5A7 7 0 1 1 9.5 3a6 6 0 0 0 7.5 7.5z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            
+            <button class="icon-btn notifications" aria-label="Notificações">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M15 6.5C15 4 13 2 10 2S5 4 5 6.5c0 4-2 5-2 5h14s-2-1-2-5zM11.73 16a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="badge">3</span>
+            </button>
+            
+            <div class="user-menu">
+                <button id="userMenuToggle" aria-label="Menu do usuário">
+                    {% if user.profile.avatar %}
+                    <img class="avatar-placeholder" src="{{ user.profile.avatar.url }}" alt="{{ user.get_full_name }}">
+                    {% else %}
+                    <div class="avatar-placeholder">{{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}</div>
+                    {% endif %}
+                </button>
+                
+                <div class="dropdown-menu" id="userDropdown">
+                    <div class="dropdown-header">
+                        <strong>{{ user.get_full_name|default:user.username }}</strong>
+                        <span>{{ user.email }}</span>
+                        <span>RU: {{ user.username }}</span>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'school_dashboard' slug=school_user.school.slug %}" class="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                            <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                    <a href="{% url 'profile' slug=school_user.school.slug %}" class="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M13 14v-1.5a3 3 0 0 0-3-3H6a3 3 0 0 0-3 3V14M8 7a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Meu Perfil
+                    </a>
+
+                    {% if user.is_staff %}
+                    <a href="http://127.0.0.1:8000/admin/" class="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M12.45 8l.95-1.63.2-1.43-1.17-.86-1.78-.18L10 2l-1.65.9-1.78.18-1.17.86.2 1.43L6.55 7l-.95 1.63-.2 1.43 1.17.86 1.78.18L10 13l1.65-.9 1.78-.18 1.17-.86-.2-1.43L12.45 9z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        Painel Técnico
+                    </a>
+                    {% endif %}
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'auth_logout' slug=school_user.school.slug %}" class="dropdown-item">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M6 14H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3M11 11l3-3-3-3M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Sair
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>

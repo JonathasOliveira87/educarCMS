@@ -1,0 +1,175 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+
+{% block formModal %}
+
+<form id="formCreateLesson" method="POST" action="" enctype="multipart/form-data" class="modal-body">
+  {% csrf_token %}
+  <div class="modal-body">
+
+    <!-- Título -->
+    <div class="form-group">
+      <label class="form-label">
+        Título da Aula
+        <span class="required-mark">*</span>
+      </label>
+      <input type="text" name="title" id="moduleTitle" class="form-input" placeholder="Ex: Introdução ao Django" required>
+    </div>
+
+    <!-- Tipo de Conteúdo -->
+    <div class="form-group">
+      <label class="form-label">Tipo de Conteúdo</label>
+      <select name="content_type" id="moduleContentType" class="form-select" onchange="changeLessonType(this.value)">
+        <option value="video">🎥 Vídeo</option>
+        <option value="text">📄 Texto</option>
+        <option value="quiz">❓ Quiz</option>
+        <option value="file">📁 Arquivo</option>
+      </select>
+    </div>
+
+    <!-- 🔹 Campo: Texto -->
+    <div class="lesson-content-fields" id="lessonTextFields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Conteúdo em Texto</label>
+        <textarea name="content_text" class="form-textarea" rows="6" placeholder="Digite o conteúdo desta matéria..."></textarea>
+      </div>
+    </div>
+
+    <!-- 🔹 Campo: Vídeo -->
+    <div class="lesson-content-fields" id="lessonVideoFields">
+      <div id="video-upload-container">
+        <div class="video-upload-item">
+          <label class="form-label">Título do Vídeo</label>
+          <input type="text" name="video_titles[]" class="form-input" placeholder="Ex: Parte 1">
+
+          <label class="form-label mt-2">Arquivo de Vídeo</label>
+          <input type="file" name="video_files[]" class="form-input video-input" accept="video/*">
+
+          <input type="hidden" name="video_durations[]" class="video-duration-field">
+          <small class="form-hint duration-display"></small>
+        </div>
+      </div>
+
+      <button type="button" class="btn small secondary mt-2" onclick="addVideoField()">+ Adicionar outro vídeo</button>
+    </div>
+
+    <br>
+
+    <!-- Campo de duração total (só para vídeo) -->
+    <div class="form-group" id="lesssonDurationField">
+      <label class="form-label">Duração total (minutos)</label>
+      <input type="number" step="0.001" name="duration" id="lessonDuration" class="form-input" readonly>
+      <span class="form-hint">Calculado automaticamente com base nos vídeos enviados</span>
+    </div>
+
+    <!-- 🔹 Campo: Quiz -->
+    <div class="lesson-content-fields" id="lessonQuizFields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Pergunta do Quiz</label>
+        <input type="text" name="quiz_question" class="form-input" placeholder="Ex: O que é um template Django?">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Respostas (separe por vírgulas)</label>
+        <input type="text" name="quiz_answers" class="form-input" placeholder="Ex: Verdadeiro,Falso,Depende">
+        <span class="form-hint">👉 A <b>primeira</b> resposta é considerada a correta</span>
+      </div>
+    </div>
+
+    <!-- 🔹 Campo: Arquivo -->
+    <div class="lesson-content-fields" id="lessonFileFields" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Arquivo da Matéria</label>
+        <input type="file" name="content_file" class="form-input">
+        <span class="form-hint">Envie PDFs, imagens ou documentos de apoio</span>
+      </div>
+    </div>
+
+    <!-- Descrição -->
+    <div class="form-group">
+      <label class="form-label">Descrição</label>
+      <textarea name="description" id="moduleDescription" class="form-textarea" rows="3" placeholder="Descreva brevemente esta matéria..."></textarea>
+    </div>
+
+    <!-- Ordem e Status -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Ordem</label>
+        <input type="number" name="order" id="moduleOrder" class="form-input" min="1" value="1">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select name="status" id="moduleStatus" class="form-select">
+          <option value="draft">Rascunho</option>
+          <option value="published">Publicado</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="checkbox-label">
+        <input type="checkbox" name="is_free">
+        <span class="checkbox-custom"></span>
+        Aula gratuita (prévia)
+      </label>
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-outline" onclick="closeModal('{{ modal_id }}')">Cancelar</button>
+    <button type="submit" class="btn btn-primary">Salvar Matéria</button>
+  </div>
+</form>
+
+<!-- 🧠 Script: captura duração real dos vídeos -->
+<script>
+function addVideoField() {
+  const container = document.getElementById('video-upload-container');
+  const newItem = document.createElement('div');
+  newItem.classList.add('video-upload-item');
+  newItem.innerHTML = `
+    <hr>
+    <label class="form-label">Título do Vídeo</label>
+    <input type="text" name="video_titles[]" class="form-input" placeholder="Ex: Parte 2">
+    <label class="form-label mt-2">Arquivo de Vídeo</label>
+    <input type="file" name="video_files[]" class="form-input video-input" accept="video/*">
+    <input type="hidden" name="video_durations[]" class="video-duration-field">
+    <small class="form-hint duration-display"></small>
+  `;
+  container.appendChild(newItem);
+  attachDurationListeners();
+}
+
+function attachDurationListeners() {
+  document.querySelectorAll('.video-input').forEach(input => {
+    input.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = () => {
+        window.URL.revokeObjectURL(video.src);
+        const durationMin = (video.duration / 60).toFixed(3);
+        const durationField = e.target.closest('.video-upload-item').querySelector('.video-duration-field');
+        const display = e.target.closest('.video-upload-item').querySelector('.duration-display');
+        durationField.value = durationMin;
+        display.textContent = `⏱️ ${Math.floor(video.duration / 60)}:${Math.round(video.duration % 60).toString().padStart(2, "0")}`;
+        updateTotalDuration();
+      };
+      video.src = URL.createObjectURL(file);
+    });
+  });
+}
+
+function updateTotalDuration() {
+  let total = 0;
+  document.querySelectorAll('.video-duration-field').forEach(input => {
+    total += parseFloat(input.value || 0);
+  });
+  const totalField = document.getElementById('lessonDuration');
+  if (totalField) totalField.value = total.toFixed(3);
+}
+
+document.addEventListener('DOMContentLoaded', attachDurationListeners);
+</script>
+
+{% endblock %}

@@ -1,0 +1,46 @@
+/* ============================================================
+   NeoLearn - Components / _page_header.css
+   ============================================================ */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin-bottom: var(--space-8);
+  flex-wrap: wrap;
+}
+
+.page-title {
+  color: var(--text-primary);
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+}
+
+.page-subtitle {
+  font-size: var(--text-base);
+  color: var(--text-secondary);
+  margin-top: var(--space-2);
+}
+
+.page-header-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.25rem;
+  }
+}

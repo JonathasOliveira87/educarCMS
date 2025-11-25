@@ -1,0 +1,84 @@
+/* Container do checkbox */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: var(--space-3);
+}
+
+.checkbox-label:hover {
+    border-color: var(--primary-700);
+    background-color: var(--bg-secondary);
+}
+
+/* Esconde o checkbox padrão */
+.checkbox-label input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Checkbox customizado */
+.checkbox-custom {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+/* Label quando marcado */
+.checkbox-label:has(input[type="checkbox"]:checked) {
+    border-color: var(--primary-700);
+}
+
+/* Checkbox quando marcado */
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-custom {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Ícone de check */
+.checkbox-label input[type="checkbox"]:checked ~ .checkbox-custom::after {
+    content: "";
+    position: absolute;
+    left: 7px;
+    top: 3px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Efeito de foco */
+.checkbox-label input[type="checkbox"]:focus ~ .checkbox-custom {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Texto do checkbox */
+.checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.checkbox-text strong {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.checkbox-text small {
+    font-size: 14px;
+    color: var(--gray-500);
+}

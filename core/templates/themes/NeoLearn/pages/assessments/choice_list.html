@@ -1,0 +1,77 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Alternativas - Questão {{ question.order }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <!-- ======= Breadcrumbs ======= -->
+  <p class="breadcrumbs">
+    <a href="{% url 'course_detail' school.slug question.assessment.course.id %}">{{ question.assessment.course.title|title }}</a>
+      <a href="{% url 'assessment_list' school.slug question.assessment.course.id %}">Avaliações</a> 
+    <a href="{% url 'question_list' school.slug question.assessment.id %}">Questões</a>
+    <strong>Alternativas</strong>
+  </p>
+
+ <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% url 'choice_create' school.slug question.id as new_choice_url %}
+    {% include "themes/NeoLearn/components/page_header.html" with title="Alternativas da questão" subtitle=question.text|truncatechars:100  action_url=new_choice_url action_label=" + Nova alternativa" %}
+  </div>
+
+ <!-- ======= Table ======= -->
+  <div class="table-responsive">
+    {% if choices %}
+    <table class="neo-table neo-table--cards">
+      <thead>
+        <tr>
+          <th>Ordem</th>
+          <th>Texto</th>
+          <th>Correta?</th>
+          <th class="table-actions">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in choices %}
+          <tr>
+            <td>{{ c.order }}</td>
+            <td>{{ c.text|truncatechars:100 }}</td>
+            <td>
+              {% if c.is_correct %}
+                ✅ Correta
+              {% else %}
+                ❌
+              {% endif %}
+            </td>
+            <td class="table-actions">
+
+              <a href="{% url 'choice_edit' school.slug c.id %}" title="Editar Alternativa" class="btn-icon">✏️</a>
+
+              <button class="btn-icon delete" 
+                    data-url="{% url 'choice_delete' school.slug c.id %}"
+                    data-message="Tem certeza que deseja excluir &#10; '{{ c.text|truncatechars:80 }}'"
+                    onclick="openConfirmDelete(this)"
+                    title="Deletar alternativa"
+                    >
+                    🗑️
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+
+    <!-- Empty State -->
+    {% include "themes/NeoLearn/components/empty_state.html" with title="Ops, nada aqui!" message="Nenhuma alternativa cadastrada." %}
+
+    {% endif %}
+
+
+
+
+  </div>
+
+</div>
+{% endblock %}

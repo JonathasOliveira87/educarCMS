@@ -1,0 +1,20 @@
+{# ================================================================== #}
+{#  lesson_icon.html — Ícone automático para tipo de aula (NeoLearn)  #}
+{# ================================================================== #}
+
+{% if lesson.content_type == "video" %}
+    {# 🎬 Ícone de vídeo #}
+    🎬
+{% elif lesson.content_type == "text" %}
+    {# 📝 Ícone texto/aula escrita #}
+    📝
+{% elif lesson.content_type == "quiz" %}
+    {# ❓ Ícone de quiz/pergunta #}
+    ❓
+{% elif lesson.content_type == "file" and lesson.file %}
+    {# 📄 Ícone para arquivo (PDF, DOC, etc.) #}
+    📄
+{% else %}
+    {# 📁 Fallback para tipo desconhecido #}
+    📁
+{% endif %}

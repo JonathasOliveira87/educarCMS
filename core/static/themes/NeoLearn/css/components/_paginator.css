@@ -1,0 +1,42 @@
+/* ============================================================
+   NeoLearn - Components / _paginator.css
+   ============================================================ */
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.pagination {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagination li {
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.pagination li a {
+  color: var(--primary-700);
+  text-decoration: none;
+}
+
+.pagination li.active {
+  background: var(--primary-600);
+  color: #fff;
+  pointer-events: none;
+}
+
+.pagination li.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pagination li:hover:not(.active):not(.disabled) {
+  background: var(--surface-200);
+}

@@ -1,0 +1,406 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Catálogo de Cursos - NeoLearn{% endblock %}
+{% block body_class %}catalog-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="catalog-hero">
+    <div class="hero-content">
+        <h1 class="hero-title">Explore Nossos Cursos</h1>
+        <p class="hero-subtitle">Descubra cursos incríveis e comece sua jornada de aprendizado hoje</p>
+        
+        <div class="hero-search">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="search" placeholder="O que você quer aprender hoje?" class="hero-search-input">
+            <button class="hero-search-btn">
+                Buscar
+            </button>
+        </div>
+        
+        <div class="hero-stats">
+            <div class="stat-item">
+                <strong>{{ total_courses }}</strong>
+                <span>Cursos</span>
+            </div>
+            <div class="stat-item">
+                <strong>{{ total_students }}</strong>
+                <span>Alunos</span>
+            </div>
+            <div class="stat-item">
+                <strong>{{ total_instructors }}</strong>
+                <span>Instrutores</span>
+            </div>
+            <div class="stat-item">
+                <strong>{{ total_hours }}</strong>
+                <span>Horas de Conteúdo</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories -->
+<div class="categories-section">
+    <h2 class="section-title">Categorias Populares</h2>
+    <div class="categories-grid">
+        {% for category in categories %}
+        <a href="?category={{ category.slug }}" class="category-card {% if selected_category == category.slug %}active{% endif %}">
+            <div class="category-icon">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                    <rect x="4" y="4" width="24" height="24" rx="4" stroke="currentColor" stroke-width="2"/>
+                    <path d="M4 12h24M12 4v24" stroke="currentColor" stroke-width="2"/>
+                </svg>
+            </div>
+            <h3>{{ category.name }}</h3>
+            <span class="category-count">{{ category.courses_count }} cursos</span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Filters and Courses -->
+<div class="catalog-content">
+    <!-- Sidebar Filters -->
+    <aside class="catalog-sidebar">
+        <div class="filter-section">
+            <h3 class="filter-title">Filtros</h3>
+            <button class="filter-clear">Limpar todos</button>
+        </div>
+        
+        <div class="filter-group">
+            <h4 class="filter-group-title">Nível</h4>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="level" value="beginner">
+                <span>Iniciante</span>
+                <span class="filter-count">{{ beginner_count }}</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="level" value="intermediate">
+                <span>Intermediário</span>
+                <span class="filter-count">{{ intermediate_count }}</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="level" value="advanced">
+                <span>Avançado</span>
+                <span class="filter-count">{{ advanced_count }}</span>
+            </label>
+        </div>
+        
+        <div class="filter-group">
+            <h4 class="filter-group-title">Preço</h4>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="price" value="free">
+                <span>Gratuito</span>
+                <span class="filter-count">{{ free_count }}</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="price" value="paid">
+                <span>Pago</span>
+                <span class="filter-count">{{ paid_count }}</span>
+            </label>
+        </div>
+        
+        <div class="filter-group">
+            <h4 class="filter-group-title">Duração</h4>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="duration" value="short">
+                <span>0-2 horas</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="duration" value="medium">
+                <span>3-6 horas</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="duration" value="long">
+                <span>7+ horas</span>
+            </label>
+        </div>
+        
+        <div class="filter-group">
+            <h4 class="filter-group-title">Avaliação</h4>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="rating" value="5">
+                <div class="rating-stars">
+                    <span class="stars">★★★★★</span>
+                    <span>5.0</span>
+                </div>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="rating" value="4">
+                <div class="rating-stars">
+                    <span class="stars">★★★★☆</span>
+                    <span>4.0+</span>
+                </div>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="rating" value="3">
+                <div class="rating-stars">
+                    <span class="stars">★★★☆☆</span>
+                    <span>3.0+</span>
+                </div>
+            </label>
+        </div>
+        
+        <div class="filter-group">
+            <h4 class="filter-group-title">Recursos</h4>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="features" value="certificate">
+                <span>Certificado</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="features" value="videos">
+                <span>Vídeo-aulas</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="features" value="exercises">
+                <span>Exercícios</span>
+            </label>
+            <label class="filter-checkbox">
+                <input type="checkbox" name="features" value="support">
+                <span>Suporte do Instrutor</span>
+            </label>
+        </div>
+    </aside>
+    
+    <!-- Courses List -->
+    <div class="catalog-main">
+        <div class="catalog-header">
+            <div class="results-info">
+                <h2>{{ courses.paginator.count }} Cursos encontrados</h2>
+                {% if selected_category %}
+                <span class="active-filter">
+                    {{ selected_category_name }}
+                    <a href="?" class="remove-filter">×</a>
+                </span>
+                {% endif %}
+            </div>
+            
+            <div class="catalog-controls">
+                <select class="sort-select">
+                    <option value="popular">Mais Populares</option>
+                    <option value="recent">Mais Recentes</option>
+                    <option value="rating">Melhor Avaliados</option>
+                    <option value="price-low">Menor Preço</option>
+                    <option value="price-high">Maior Preço</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="catalog-grid">
+            {% for course in courses %}
+            <div class="catalog-course-card">
+                <div class="course-link">
+                    <div class="course-image">
+                        {% if course.thumbnail %}
+                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600&h=400&fit=crop" alt="{{ course.title }}">
+                        {% endif %}
+
+                        <div class="course-badges">
+                            {% if course.is_featured %}
+                                <span class="course-badge featured">Destaque</span>
+                            {% endif %}
+                        </div>
+
+                        <button class="wishlist-btn" data-course-id="{{ course.id }}">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M10 17.5l-1.45-1.32C4.4 12.36 2 10.28 2 7.5 2 5.5 3.5 4 5.5 4c1.54 0 3.04.99 3.57 2.36h1.87C11.46 4.99 12.96 4 14.5 4c2 0 3.5 1.5 3.5 3.5 0 2.78-2.4 4.86-6.55 8.68L10 17.5z" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="course-content-catalog">
+                        <div class="course-category-badge">{{ course.category.name }}</div>
+                        
+                        <h3 class="course-card-title">{{ course.title|title }}</h3>
+                        <p class="course-card-description">{{ course.short_description|truncatewords:15 }}</p>
+                        
+                        <div class="course-instructor">
+                            <div class="instructor-avatar-small">
+                                {% if course.instructor.profile.avatar %}
+                                <img src="{{ course.instructor.profile.avatar.url }}" alt="{{ course.instructor.get_full_name }}">
+                                {% else %}
+                                <div class="avatar-placeholder-xs">{{ course.instructor.username.0|upper }}</div>
+                                {% endif %}
+                            </div>
+                            <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                        </div>
+                        
+                        <div class="course-rating">
+                            <div class="rating-display">
+                                <span class="rating-number">{{ course.average_rating }}</span>
+                                <div class="stars-display">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= course.average_rating %}
+                                        <svg class="star filled" width="16" height="16" viewBox="0 0 16 16">
+                                            <path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3L5 9 1 6h5z" fill="currentColor"/>
+                                        </svg>
+                                        {% else %}
+                                        <svg class="star" width="16" height="16" viewBox="0 0 16 16">
+                                            <path d="M8 1l2 5h5l-4 3 1.5 5L8 11l-4.5 3L5 9 1 6h5z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                                        </svg>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-count">({{ course.reviews.count }})</span>
+                            </div>
+                        </div>
+                        
+                        <div class="course-meta-info">
+                            <span class="meta-info-item">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M7 1L1 4l6 3 6-3-6-3zM1 10l6 3 6-3" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                {{ course.lessons.count }} aulas
+                            </span>
+                            <span class="meta-info-item">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M7 3v4l2 2" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                {{ course.duration_hours }}h
+                            </span>
+                            <span class="meta-info-item">
+                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                    <path d="M12 12v-1a2.5 2.5 0 0 0-2.5-2.5h-5A2.5 2.5 0 0 0 2 11v1M7 6a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                {{ course.enrolled_students.count }} alunos
+                            </span>
+                        </div>
+                        
+                        <div class="course-level">
+                            <span class="level-badge level-{{ course.level }}">
+                                {% if course.level == 'beginner' %}Iniciante
+                                {% elif course.level == 'intermediate' %}Intermediário
+                                {% else %}Avançado{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="course-footer">
+                    <div class="course-price">
+                        {% if course.is_free %}
+                        <span class="price-free">Gratuito</span>               
+                        {% else %}
+                        <span class="price-current">R$ {{ course.price }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if user.is_authenticated and course.id in enrolled_ids %}
+
+                        <a href="{% url 'course_detail' slug=school.slug course_id=course.id %}" class="btn-enroll enrolled">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13 4L6 11 3 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Continuar
+                        </a>
+                    {% else %}
+                        <form method="post" action="{% url 'enroll_in_course' slug=school.slug course_id=course.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-enroll">Inscrever-se</button>
+                        </form>
+
+                    {% endif %}
+
+
+                </div>
+            </div>
+            {% empty %}
+            <div class="no-results">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="50" stroke="currentColor" stroke-width="2" opacity="0.2"/>
+                    <path d="M50 50l20 20M70 50l-20 20" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity="0.3"/>
+                </svg>
+                <h3>Nenhum curso encontrado</h3>
+                <p>Tente ajustar seus filtros ou fazer uma nova busca</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if courses.has_other_pages %}
+        <div class="pagination">
+            {% if courses.has_previous %}
+            <a href="?page={{ courses.previous_page_number }}" class="pagination-btn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Anterior
+            </a>
+            {% endif %}
+            
+            <div class="pagination-numbers">
+                {% for num in courses.paginator.page_range %}
+                    {% if courses.number == num %}
+                    <span class="pagination-number active">{{ num }}</span>
+                    {% elif num > courses.number|add:'-3' and num < courses.number|add:'3' %}
+                    <a href="?page={{ num }}" class="pagination-number">{{ num }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            
+            {% if courses.has_next %}
+            <a href="?page={{ courses.next_page_number }}" class="pagination-btn">
+                Próxima
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M8 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// =============================
+// FILTROS (apenas visuais por enquanto)
+// =============================
+document.querySelectorAll('.filter-checkbox input').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        console.log('Filtro alterado:', this.name, this.value, this.checked);
+        // 👉 Aqui no futuro pode adicionar lógica real de filtro com query params
+    });
+});
+
+// Botão “Limpar todos”
+document.querySelector('.filter-clear')?.addEventListener('click', function() {
+    document.querySelectorAll('.filter-checkbox input:checked').forEach(cb => {
+        cb.checked = false;
+    });
+});
+
+// =============================
+// WISHLIST (apenas toggle visual por enquanto)
+// =============================
+document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.classList.toggle('active');
+        console.log('Wishlist:', this.dataset.courseId);
+        // 👉 Aqui no futuro pode enviar pro servidor via fetch
+    });
+});
+
+// =============================
+// BUSCA
+// =============================
+document.querySelector('.hero-search-btn')?.addEventListener('click', function() {
+    const query = document.querySelector('.hero-search-input').value.trim();
+    if (query) {
+        console.log('Buscar:', query);
+        // 👉 No futuro pode redirecionar: window.location = '?q=' + encodeURIComponent(query);
+    }
+});
+</script>
+
+{% endblock %}

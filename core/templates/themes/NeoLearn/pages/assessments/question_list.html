@@ -1,0 +1,80 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Questões - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+
+<div class="page-container course-detail-page">
+
+
+<div class="breadcrumbs">
+  <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+  <a href="{% url 'assessment_list' school.slug assessment.course.id %}">Avaliações</a> 
+  <strong>Questões</strong>
+</div>
+
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+{% url 'question_create' school.slug assessment.id as question_create %}
+{% include "themes/NeoLearn/components/page_header.html" with title="Questões da avaliação" subtitle="Organize a prova, defina a ordem e o valor de cada questão."  action_url=question_create action_label=" + Nova questão" %}
+</div>
+
+
+  <div class="table-responsive">
+    <table class="neo-table neo-table--cards">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Enunciado</th>
+          <th>Tipo</th>
+          <th>Pontos</th>
+          <th>Alternativas</th>
+          <th class="table-actions">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for q in questions %}
+          <tr>
+            <td>{{ q.order }}</td>
+            <td>{{ q.text|truncatechars:80 }}</td>
+            <td>{{ q.get_type_display }}</td>
+            <td>{{ q.points }}</td>
+            <td>
+              {% if q.type == "multiple_choice" or q.type == "true_false" %}
+                {{ q.choices.count }} alternativas
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td class="table-actions">
+              {% if q.type == "multiple_choice" or q.type == "true_false" %}
+                <a href="{% url 'choice_list' school.slug q.id %}" class="btn-icon" title="Ver Alternativas">
+                  📝
+                </a>
+              {% endif %}
+
+              <a href="{% url 'question_edit' school.slug q.id %}" class="btn-icon" title="Editar Questão">
+                ✏️
+              </a>
+              <button class="btn-icon delete" 
+                    data-url="{% url 'question_delete' school.slug q.id %}"
+                    data-message="Tem certeza que deseja excluir &#10; '{{ q.text|truncatechars:80 }}'"
+                    onclick="openConfirmDelete(this)"
+                    title="Deletar Questão"
+                    >
+                    🗑️
+              </button>
+            </td>
+          </tr>
+        {% empty %}
+          <!-- Empty State -->
+          {% include "themes/NeoLearn/components/empty_state.html" with title="Ops, nada aqui!" message="Nenhuma questão cadastrada ainda." %}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

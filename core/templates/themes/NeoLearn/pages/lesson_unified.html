@@ -1,0 +1,1203 @@
+{% load static custom_filters %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ lesson.title }} - {{ course.title }} | {{ school.name }}{% endblock %}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-500: #6366f1;
+      --primary-600: #4f46e5;
+      --primary-700: #4338ca;
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-hover: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    .lesson-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== HEADER ===== */
+    .lesson-header {
+      margin-bottom: 2rem;
+    }
+  
+
+    .lesson-title-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .lesson-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      white-space: nowrap;
+    }
+
+    .lesson-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .meta-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.7;
+    }
+
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .content-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ===== PLAYER DE VÍDEO ===== */
+    .video-player {
+      position: relative;
+      background: #000;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      aspect-ratio: 21/9;
+    }
+
+    .video-player video {
+      width: 100%;
+      height: 100%;
+      display: block;
+          aspect-ratio: 21/9;
+    }
+
+    .video-block {
+      display: none;
+    }
+
+    .video-block.active {
+      display: block;
+    }
+
+    .video-title {
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      font-size: 0.875rem;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+    }
+
+    /* ===== QUIZ ===== */
+    .quiz-container {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .quiz-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      color: white;
+      padding: 0.5rem 1.5rem;
+      border-radius: 50px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .question-text {
+      font-size: 1.375rem;
+      font-weight: 600;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .quiz-option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: var(--bg-primary);
+      padding: 1.25rem 1.5rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+
+    .quiz-option:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary-500);
+      transform: translateX(4px);
+    }
+
+    .quiz-option input[type="radio"] {
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--text-secondary);
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .quiz-option input[type="radio"]:checked {
+      border-color: var(--primary-500);
+      background: var(--primary-500);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .quiz-option input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .quiz-option.selected {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary-500);
+    }
+
+    .quiz-option.correct {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: var(--success);
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--error);
+    }
+
+    .option-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .quiz-option:hover .option-letter,
+    .quiz-option.selected .option-letter {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .quiz-option.correct .option-letter {
+      background: var(--success);
+      color: white;
+    }
+
+    .quiz-option.incorrect .option-letter {
+      background: var(--error);
+      color: white;
+    }
+
+    .option-text {
+      font-size: 1rem;
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 1.125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-message {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      text-align: center;
+      animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+
+    .check-icon.complete svg {
+      animation: pop 0.3s ease;
+    }
+
+    @keyframes pop {
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+
+    .result-message.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+      border: 1px solid var(--success);
+    }
+
+    .result-message.error {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+      border: 1px solid var(--error);
+    }
+
+    /* ===== CONTEÚDO TEXTO/ARQUIVO ===== */
+    .text-content {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      line-height: 1.7;
+    }
+
+    .file-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      color: white;
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .file-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    /* ===== CARD DE INFORMAÇÕES ===== */
+    .info-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .info-section {
+      margin-bottom: 2rem;
+    }
+
+    .info-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .description {
+      color: var(--text-secondary);
+      line-height: 1.7;
+      font-size: 0.9375rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: var(--bg-primary);
+      padding: 1rem;
+      border-radius: var(--radius-md);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-500);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.875rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+      color: white;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary-500);
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .progress-card {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .progress-title {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .progress-percentage {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-500);
+    }
+
+    .progress-bar-container {
+      height: 8px;
+      background: var(--bg-primary);
+      border-radius: 50px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary-500), var(--primary-700));
+      border-radius: 50px;
+      transition: width 0.5s ease;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+
+    .progress-text {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+
+    .lessons-list {
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .lessons-header {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .lesson-card {
+      display: block;
+      text-decoration: none;
+      margin-bottom: 0.5rem;
+    }
+
+    .lesson-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: var(--bg-primary);
+    }
+
+    .lesson-item:hover {
+      background: var(--bg-hover);
+      transform: translateX(4px);
+    }
+
+    .lesson-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid var(--primary-500);
+    }
+
+    .lesson-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .lesson-item.active .lesson-number {
+      background: var(--primary-500);
+      color: white;
+    }
+
+    .lesson-item.completed .lesson-number {
+      background: var(--success);
+      color: white;
+    }
+
+    .lesson-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .lesson-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lesson-duration {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .lesson-status {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-secondary);
+    }
+
+    /* ===== RESPONSIVO ===== */
+    @media (max-width: 1024px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+      .lesson-title-section { flex-direction: column; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .action-buttons { flex-direction: column; }
+      .quiz-container { padding: 1.5rem; }
+      .question-text { font-size: 1.125rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="lesson-container">
+    <!-- HEADER -->
+    <div class="lesson-header">
+      <div class="lesson-title-section">
+        <h1>{{ lesson.title }}</h1>
+        <span class="lesson-badge">
+          <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
+            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
+          </svg>
+          Aula #{{ lesson.id }}
+        </span>
+      </div>
+
+      <div class="lesson-meta">
+
+        <div class="meta-item">
+          <svg class="meta-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+          </svg>
+          <span>
+            {% if lesson.videos.all %}
+              ⏱️ {{ lesson.videos.all.0.duration|default:0|format_duration }}
+            {% else %}
+              ⏱️ {{ lesson.duration|default:0|format_duration }}
+            {% endif %}
+            </span>
+        </div>
+
+
+      </div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+      <div class="content-section">
+        
+        <!-- VÍDEO -->
+        {% if lesson.content_type == 'video' %}
+          <div class="video-player">
+            {% for video in lesson.videos.all %}
+              <div class="video-block {% if forloop.first %}active{% endif %}">
+                {% if video.title %}
+                  <h3 class="video-title">{{ video.title }}</h3>
+                {% endif %}
+                <video class="video" controls preload="metadata" playsinline>
+                  <source src="{{ video.file.url }}" type="video/mp4">
+                  Seu navegador não suporta vídeos HTML5.
+                </video>
+              </div>
+            {% endfor %}
+          </div>
+
+        <!-- QUIZ -->
+        {% elif lesson.content_type == 'quiz' %}
+          <div class="quiz-container">
+            <span class="quiz-badge">📝 Quiz Interativo</span>
+            <h2 class="question-text">{{ lesson.description }}</h2>
+
+            <form id="quizForm" class="quiz-form">
+              {% csrf_token %}
+              <div class="options-grid">
+                {% for option in options %}
+                  <label class="quiz-option">
+                    <input type="radio" name="answer" value="{{ option }}" required>
+                    <span class="option-letter"></span>
+                    <span class="option-text">{{ option }}</span>
+                  </label>
+                {% empty %}
+                  <p class="empty-state">Nenhuma alternativa cadastrada.</p>
+                {% endfor %}
+              </div>
+              <button type="submit" class="btn-submit">Enviar resposta</button>
+            </form>
+
+            <div id="resultMessage" style="display: none;"></div>
+          </div>
+
+        <!-- ARQUIVO -->
+        {% elif lesson.content_type == 'file' and lesson.file %}
+          <div class="info-card">
+            <div class="info-section">
+              <h2 class="info-title">📄 Material da Aula</h2>
+              <p class="description">Faça o download do material complementar desta aula.</p>
+              <a href="{{ lesson.file.url }}" target="_blank" class="file-download" download>
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+                Baixar arquivo
+              </a>
+            </div>
+          </div>
+
+        <!-- TEXTO -->
+        {% elif lesson.content_type == 'text' %}
+          <div class="text-content">
+            {{ lesson.content|safe }}
+          </div>
+
+        {% else %}
+          <div class="empty-state">
+            <p>Nenhum conteúdo disponível para esta aula.</p>
+          </div>
+        {% endif %}
+
+        <!-- CARD DE INFORMAÇÕES -->
+        <div class="info-card">
+          <div class="info-section">
+            <h2 class="info-title">📚 Sobre esta aula</h2>
+            <p class="description">
+              {{ lesson.description|default:"Conteúdo educacional de qualidade para seu aprendizado." }}
+            </p>
+          </div>
+
+          <div class="info-section">
+            <h2 class="info-title">📊 Estatísticas</h2>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-value">{{ subject.lessons.count }}</span>
+                <span class="stat-label">Aulas</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">{{ count_file|add:count_text }}</span>
+                <span class="stat-label">Material Complementar</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">{{ count_video }}</span>
+                <span class="stat-label">Video</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-value">{{ count_quiz }}</span>
+                <span class="stat-label">Quiz</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <!-- PROGRESSO -->
+        <div class="progress-card">
+          <div class="progress-header">
+            <span class="progress-title">🎯 Progresso do Modulo</span>
+            <span class="progress-percentage" id="progressPercentage">
+              {{ progress_in_subject|floatformat:0 }}%
+            </span>
+          </div>
+
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"
+                style="width: {{ progress_in_subject|floatformat:0 }}%;">
+            </div>
+          </div>
+
+          <p class="progress-text" id="progressText">
+            {{ completed_lessons_in_subject|default:"0" }} de {{ total_lessons_in_subject|default:"0" }} aulas concluídas
+          </p>
+        </div>
+
+
+        <!-- LISTA DE AULAS -->
+        <div class="lessons-list">
+          <h3 class="lessons-header">📘 Conteúdo do Curso</h3>
+
+          {% for l in lessons %}
+            <a href="{% url 'lesson_view' school.slug course.id l.id %}" 
+               class="lesson-card">
+              <div class="lesson-item {% if l.id == lesson.id %}active{% endif %} {% if l.is_completed %}completed{% endif %}">
+                <div class="lesson-number">
+                  {% if l.content_type == 'video' %}
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                      <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none"/>
+                      <path d="M8 6l6 4-6 4V6z"/>
+                    </svg>
+                  {% elif l.content_type == 'text' %}
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="4" y="4" width="12" height="12" stroke-width="2"/>
+                      <line x1="6" y1="8" x2="14" y2="8" stroke-width="2"/>
+                      <line x1="6" y1="12" x2="11" y2="12" stroke-width="2"/>
+                    </svg>
+                  {% elif l.content_type == 'quiz' %}
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <circle cx="10" cy="10" r="8" stroke-width="2"/>
+                      <line x1="10" y1="7" x2="10" y2="11" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="10" cy="14" r="0.5" fill="currentColor"/>
+                    </svg>
+                  {% elif l.content_type == 'file' %}
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <path d="M10 3v11m0 0l-4-4m4 4l4-4" stroke-width="2" stroke-linecap="round"/>
+                      <line x1="3" y1="17" x2="17" y2="17" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                  {% else %}
+                    <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+                      <rect x="5" y="4" width="10" height="12" stroke-width="2"/>
+                    </svg>
+                  {% endif %}
+                </div>
+                
+                <div class="lesson-info">
+                  <div class="lesson-name">{{ l.title }}</div>
+                  <div class="lesson-duration">
+                    {% if l.content_type == "video" and l.videos.exists %}
+                      ⏱️ {{ l.videos.first.duration|default:0|format_duration }}
+                    {% elif l.duration %}
+                      ⏱️ {{ l.duration|format_duration }}
+                    {% else %}
+                      📖 Leitura
+                    {% endif %}
+                  </div>
+                </div>
+<div class="lesson-status"
+     data-lesson-id="{{ l.id }}"
+     data-completed="{{ l|get_lesson_completed:school_user|yesno:'true,false' }}">
+
+  <!-- Ícone padrão (ainda não concluída) -->
+  <div class="check-icon incomplete" {% if l|get_lesson_completed:school_user %}style="display:none"{% endif %}>
+    <svg width="20" height="20" fill="none" stroke="#64748b" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="10" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- Ícone concluído (check verde) -->
+  <div class="check-icon complete" {% if not l|get_lesson_completed:school_user %}style="display:none"{% endif %}>
+    <svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+
+</div>
+
+              </div>
+            </a>
+          {% empty %}
+            <p class="empty-state">Nenhuma aula disponível.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT -->
+  <script>
+    // ===== MARCAR COMO CONCLUÍDA =====
+    const completeBtn = document.getElementById('completeBtn');
+    if (completeBtn) {
+      completeBtn.addEventListener('click', function() {
+        const currentLessonItem = document.querySelector('.lesson-item.active');
+        
+        if (currentLessonItem && !currentLessonItem.classList.contains('completed')) {
+          // Marca como concluída
+          currentLessonItem.classList.remove('active');
+          currentLessonItem.classList.add('completed');
+          
+          // Atualiza ícone
+          const statusIcon = currentLessonItem.querySelector('.lesson-status');
+          if (statusIcon) {
+            statusIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+            statusIcon.setAttribute('stroke', '#10b981');
+          }
+          
+          // Atualiza progresso
+          const progressBar = document.getElementById('progressBar');
+          const progressPercentage = document.getElementById('progressPercentage');
+          const progressText = document.getElementById('progressText');
+          
+          if (progressBar && progressPercentage && progressText) {
+            let completed = document.querySelectorAll('.lesson-item.completed').length;
+            let total = document.querySelectorAll('.lesson-item').length;
+            let percentage = Math.round((completed / total) * 100);
+            
+            progressBar.style.width = percentage + '%';
+            progressPercentage.textContent = percentage + '%';
+            progressText.textContent = `${completed} de ${total} aulas concluídas`;
+          }
+          
+          // Feedback visual
+          this.innerHTML = '<svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Concluída!';
+          this.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          
+          // Próxima aula
+          const nextLessonCard = currentLessonItem.closest('.lesson-card').nextElementSibling;
+          if (nextLessonCard) {
+            const nextLessonItem = nextLessonCard.querySelector('.lesson-item');
+            if (nextLessonItem) {
+              nextLessonItem.classList.add('active');
+              nextLessonCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+          }
+          
+          // Restaura botão
+          setTimeout(() => {
+            this.innerHTML = '<svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Marcar como concluída';
+            this.style.background = '';
+          }, 2000);
+        }
+      });
+    }
+
+    // ===== QUIZ =====
+    const quizForm = document.getElementById('quizForm');
+    if (quizForm) {
+      const options = document.querySelectorAll('.quiz-option');
+      const resultMessage = document.getElementById('resultMessage');
+      const correctAnswer = "{{ correct_answer|escapejs }}";
+
+      // Adiciona letras (A, B, C, D...)
+      options.forEach((option, index) => {
+        const letterSpan = option.querySelector('.option-letter');
+        if (letterSpan) {
+          letterSpan.textContent = String.fromCharCode(65 + index);
+        }
+      });
+
+      // Seleção visual
+      options.forEach(option => {
+        const input = option.querySelector('input');
+        input.addEventListener('change', () => {
+          options.forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+        });
+      });
+
+      // Submit
+      quizForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const selectedAnswer = quizForm.answer.value;
+        const submitBtn = quizForm.querySelector('.btn-submit');
+        submitBtn.disabled = true;
+
+        // Marca respostas
+        options.forEach(option => {
+          const input = option.querySelector('input');
+          if (input.value === correctAnswer) {
+            option.classList.add('correct');
+          } else if (input.checked && input.value !== correctAnswer) {
+            option.classList.add('incorrect');
+          }
+        });
+
+        // Mostra resultado
+        resultMessage.style.display = 'block';
+        if (selectedAnswer === correctAnswer) {
+          resultMessage.className = 'result-message success';
+          resultMessage.textContent = '🎉 Resposta correta! Parabéns!';
+        } else {
+          resultMessage.className = 'result-message error';
+          resultMessage.textContent = `❌ Resposta incorreta. A correta é: ${correctAnswer}`;
+        }
+
+        setTimeout(() => {
+          resultMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 200);
+      });
+    }
+
+    // ===== VÍDEOS MÚLTIPLOS =====
+    const videoBlocks = document.querySelectorAll('.video-block');
+    if (videoBlocks.length > 1) {
+      videoBlocks.forEach((block, index) => {
+        const video = block.querySelector('video');
+        if (video) {
+          video.addEventListener('ended', () => {
+            // Passa para próximo vídeo
+            if (index < videoBlocks.length - 1) {
+              block.classList.remove('active');
+              videoBlocks[index + 1].classList.add('active');
+              videoBlocks[index + 1].querySelector('video').play();
+            }
+          });
+        }
+      });
+    }
+  </script>
+
+  <script>
+    // Funcionalidade de marcar como concluída
+    document.querySelector('.btn-primary').addEventListener('click', function() {
+      const currentLesson = document.querySelector('.lesson-item.active');
+      
+      // Marca como concluída
+      currentLesson.classList.remove('active');
+      currentLesson.classList.add('completed');
+      
+      // Atualiza o ícone
+      currentLesson.querySelector('.lesson-status').innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+      `;
+      currentLesson.querySelector('.lesson-status').setAttribute('stroke', '#10b981');
+      
+      // Próxima aula
+      const nextLesson = currentLesson.nextElementSibling;
+      if (nextLesson) {
+        nextLesson.classList.add('active');
+        nextLesson.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      
+      // Atualiza progresso
+      const progressBar = document.querySelector('.progress-bar');
+      const progressPercentage = document.querySelector('.progress-percentage');
+      const progressText = document.querySelector('.progress-text');
+      
+      let completed = document.querySelectorAll('.lesson-item.completed').length;
+      let total = document.querySelectorAll('.lesson-item').length;
+      let percentage = Math.round((completed / total) * 100);
+      
+      progressBar.style.width = percentage + '%';
+      progressPercentage.textContent = percentage + '%';
+      progressText.textContent = `${completed} de ${total} aulas concluídas`;
+      
+      // Feedback visual
+      this.textContent = '✓ Concluída!';
+      this.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+      
+      setTimeout(() => {
+        this.innerHTML = `
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+          </svg>
+          Marcar como concluída
+        `;
+        this.style.background = '';
+      }, 2000);
+    });
+
+    // Navegação entre aulas
+    document.querySelectorAll('.lesson-item').forEach(item => {
+      item.addEventListener('click', function() {
+        if (!this.classList.contains('active') && !this.querySelector('.lesson-status path[d*="M12 15v2m-6 4h12"]')) {
+          return; // Bloqueia aulas futuras
+        }
+        
+        document.querySelectorAll('.lesson-item').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Simula troca de vídeo
+        const lessonName = this.querySelector('.lesson-name').textContent;
+        document.querySelector('h1').textContent = lessonName;
+      });
+    });
+
+    
+// ========== MARCAR AULA CONCLUÍDA ==========
+document.addEventListener('DOMContentLoaded', () => {
+    // percorre todas as lições
+    document.querySelectorAll('.lesson-item').forEach(item => {
+        const icon = item.querySelector('.lesson-status');
+        const link = item.querySelector('.lesson-title a');
+        if (!icon || !link) return;
+
+        item.addEventListener('click', async (e) => {
+        // 🚫 Ignora cliques em botões ou formulários (edição/deleção)
+        if (e.target.closest('button') || e.target.closest('form') || e.target.closest('.lesson-actions')) {
+            return;
+        }
+
+        e.preventDefault();
+        const lessonId = icon.dataset.lessonId;
+        const courseId = "{{ course.id }}";
+        const schoolSlug = "{{ school.slug }}";
+        const isCompleted = icon.dataset.completed === "true";
+
+        // ⚡ Se já estiver concluída, só abre a janela (sem mudar ícone nem enviar AJAX)
+        if (isCompleted) {
+            window.open(link.href, 'lessonWindow');
+            return;
+        }
+
+        // ✅ Marca como concluída visualmente
+        icon.dataset.completed = "true";
+        const closedIcon = icon.querySelector('.book-icon.closed');
+        const openIcon = icon.querySelector('.book-icon.open');
+        closedIcon.style.display = 'none';
+            openIcon.style.display = 'block';
+
+        // 📨 Envia atualização pro backend
+    try {
+    const response = await fetch(`/school/${schoolSlug}/courses/${courseId}/lessons/${lessonId}/progress/`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ is_completed: true })
+        });
+        if (response.ok) {
+        const data = await response.json();
+        const progress = Math.round(data.course_progress || 0);
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+
+        if (progressFill) {
+            progressFill.style.transition = 'width 0.5s ease';
+            progressFill.style.width = `${progress}%`;
+        }
+        if (progressText) progressText.textContent = `${progress}% completo`;
+        } else {
+        console.error(`❌ Erro ao atualizar progresso da aula ${lessonId}`);
+        }
+        } catch (err) {
+        console.error('Erro de rede ao atualizar progresso:', err);
+        }
+
+        // 🪟 Abre ou reutiliza a janela "lessonWindow"
+        setTimeout(() => {
+            window.open(link.href, 'lessonWindow');
+        }, 100);
+        });
+    });
+});
+
+
+// ========== PEGAR CSRF ==========
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+ }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+/* ============================================================
+   NeoLearn - Themes / _dark.css
+   ============================================================ */
+
+/* --- Begin: css/themes/_dark.css --- */
+/* ===================================
+   Dark Theme
+   =================================== */
+
+[data-theme="dark"] {
+  /* Semantic Colors (Dark Mode) */
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a222e;
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --border-color: #374151;
+  
+  /* Shadows (adjusted for dark mode) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5);
+}
+
+/* Header */
+[data-theme="dark"] .header {
+  background: rgba(31, 41, 55, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .search-bar {
+  background: var(--bg-tertiary);
+}
+
+[data-theme="dark"] .search-bar:focus-within {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] .user-avatar {
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .dropdown-menu {
+  background: var(--bg-tertiary);
+}
+
+/* Sidebar */
+[data-theme="dark"] .sidebar {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] .sidebar-footer {
+  background: var(--bg-primary);
+}
+
+/* Buttons */
+[data-theme="dark"] .btn-outline {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .btn-outline:hover {
+  background: var(--bg-primary);
+}
+
+/* Cards */
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .course-card,
+[data-theme="dark"] .widget {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+/* Forms */
+[data-theme="dark"] .form-input {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .form-input:focus {
+  background: var(--bg-primary);
+}
+
+/* Login Page Dark */
+[data-theme="dark"] .login-page {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .login-main {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .login-divider span {
+  background: var(--bg-secondary);
+}
+
+/* Alerts */
+[data-theme="dark"] .alert {
+  border-color: var(--border-color);
+}
+
+/* Footer */
+[data-theme="dark"] .footer {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+/* Scrollbar Dark */
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--gray-600);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Progress Bar */
+[data-theme="dark"] .progress-bar {
+  background: var(--bg-tertiary);
+}
+/* --- End: css/themes/_dark.css --- */

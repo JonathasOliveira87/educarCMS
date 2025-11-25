@@ -1,0 +1,19 @@
+{% load static %}
+<div class="modal" id="{{ modal_id|default:'genericModal' }}">
+  <div class="modal-overlay"></div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">{{ modal_title|default:'Título' }}</h3>
+      <button type="button" class="modal-close" onclick="closeModal('{{ modal_id }}')">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      {% block formModal %}{% endblock %}
+    </div>
+
+  </div>
+</div>

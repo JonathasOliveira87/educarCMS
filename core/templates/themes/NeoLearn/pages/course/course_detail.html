@@ -1,0 +1,2125 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static custom_filters %}
+
+
+{% block title %}{{ course.title }} - {{ school.name }}{% endblock %}
+
+{% block body_class %}course-detail-page{% endblock %}
+
+
+{% block content %}
+
+
+<!-- detail Header -->
+<div class="detail-header">
+    
+    <div class="course-header-content">
+
+        <div class="detail-basic-info">
+            <h1 class="course-title">{{ course.title|title }}</h1>
+            <p class="course-subtitle">{{ course.short_description }}</p>   
+        </div>
+        
+        <div class="detail-stats">
+            {% if user.is_staff %}
+            <div class="stat-box">
+                <span class="stat-number">{{ enrollments.count }}</span>
+                <span class="stat-label">Matriculados</span>
+            </div>
+            {% endif %}
+            <div class="stat-box">
+                <span class="stat-number">{{ total_subjects }}</span>
+                <span class="stat-label">Matérias</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">{{ total_lessons }}</span>
+                <span class="stat-label">Aulas</span>
+            </div>
+            <div class="stat-box">
+                <span class="stat-number">{{ total_duration }} </span>
+                <span class="stat-label">de conteúdo</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Tabs de Navegação -->
+<div class="course-tabs">
+    <div class="tabs-container">
+        <button class="tab-item active" data-tab="curriculum">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Aulas
+        </button>
+        <button class="tab-item" data-tab="assessment">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="4" y="2" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 3h6v2H7z" fill="currentColor"/>
+                <path d="M7 9l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Avaliações
+        </button>
+        <button class="tab-item" data-tab="info">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 10v4M10 6v.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Informações complementares
+        </button>
+    </div>
+</div>
+
+<!-- Conteúdo das Tabs -->
+<div class="course-content">
+
+    <!-- Tab: Currículo -->
+    <div class="tab-content active" id="curriculum">
+        <div class="content-layout">
+            <div class="content-main">
+
+                <div class="status-badge" style="background: {{ course.category.color }}50; color: var(--text-color); border: 1px solid {{ course.category.color }}">
+                    {{ course.category.name }}
+                </div>
+
+                {% if user.is_staff %}
+                <div class="status-badge {{ course.status }}">
+                    {% if course.status == 'active' %}
+                        Publicado
+                    {% elif course.status == 'draft' %}
+                        Rascunho
+                    {% else %}
+                        Arquivado
+                    {% endif %}
+                </div>
+                {% endif%}
+                <br><br>
+                <!-- Lista de Módulos -->
+                <div class="curriculum-header">
+                    
+                    <h2>Matérias do Curso</h2>
+                    {% if user.is_staff %}
+                    <button class="btn btn-primary" onclick="openModal('modalCreateSubject')">                        
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Adicionar Matéria
+                    </button>
+                    {% endif %}
+
+                </div>
+
+
+                <div class="modules-list" id="modulesList"> 
+                {% if subjects %}
+                    {% for subject in subjects %}
+                    
+                    <div class="module-card" data-module-id="{{ subject.id }}">
+                        
+                        <!-- Módulo -->
+                        <div class="module-header"  onclick="toggleModule({{ subject.id }}, this)">
+                            {% if user.is_staff %}
+                                <span class="status-badge {{ subject.status }}">
+                                    {{ subject.get_status_display }}
+                                </span>
+                            {% endif%}
+                            <div class="module-drag-handle">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M8 5h.01M8 10h.01M8 15h.01M12 5h.01M12 10h.01M12 15h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="module-info">
+
+                                <div class="module-title-wrapper">
+                                    <h3 class="module-title">{{ subject.title }}</h3>
+                                    <span class="module-badge">{{ subject.lessons.count }} aulas</span>             
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="module-actions">
+
+                                <button class="btn-icon toggle-arrow" >
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </button>
+
+                                {% if user.is_staff %}
+
+                                <button 
+                                class="btn-icon"
+                                data-id="{{ subject.id }}"
+                                data-title="{{ subject.title }}"
+                                data-description="{{ subject.description|default:'' }}"
+                                data-status="{{ subject.status }}"
+                                data-order="{{ subject.order }}"
+                                onclick="openEditSubjectModal(this)">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M11 4H4a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M13.5 2.5a2.121 2.121 0 113 3L9 13l-4 1 1-4 7.5-7.5z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                </button>
+
+                                <button 
+                                    class="btn-icon"
+                                    data-url="{% url 'subject_delete' school.slug course.id subject.id %}"
+                                    data-message="Tem certeza que deseja excluir a matéria '{{ subject.title }}' e todas as suas aulas?"
+                                    onclick="openConfirmDelete(this)">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v12a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" 
+                                            stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </button>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <!-- Aula -->
+                        <div class="module-content" id="module-{{ subject.id }}">
+                            <div class="lessons-list">
+
+                                {% if user.is_staff %}
+                                    {# ===================== ADMIN / PROFESSOR ===================== #}
+                         
+                                    {% for lesson in subject.ordered_lessons %}
+                                    <div class="lesson-item" data-lesson-id="{{ lesson.id }}">
+                                        <div>
+                                            
+                                 
+
+                                                <div class="book-icon closed" {% if lesson|get_lesson_completed:school_user %}style="display:none"{% endif %}>📘</div>
+                                                <div class="book-icon open" {% if not lesson|get_lesson_completed:school_user %}style="display:none"{% endif %}>📖</div>
+                                           
+
+                                            <span class="status-badge {{ lesson.status }}">
+                                                {{ lesson.get_status_display }}
+                                            </span>
+
+                                           
+                                                <a href="{% url 'lesson_view' school.slug course.id lesson.id %}" target="_blank">
+                                                    {% include 'themes/NeoLearn/includes/lesson_icon.html' %}
+                                                </a>
+                                           
+                                        
+                                            <a href="{% url 'lesson_view' school.slug course.id lesson.id %}" target="_blank">
+                                                {{ lesson.title }}
+                                            </a>
+
+                                        </div>
+
+                                        <div class="lesson-actions">
+                                            {% include "themes/NeoLearn/includes/admin_lesson_actions.html" %}
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <p class="no-lessons">Nenhuma aula cadastrada nesta matéria.</p>
+                                    {% endfor %}
+
+                                {% else %}
+                                    {# =========================== ALUNO ============================ #}
+
+                                    {% with first_lesson=subject.lessons.all|first %}
+                                        {% if first_lesson %}
+                                        <div class="lesson-item">
+                                            <div>
+                                            <a class="btn btn-outline" href="{% url 'lesson_view' school.slug course.id first_lesson.id %}" target="_blank">
+                                                ▶️ Assistir aulas
+                                            </a><br><br>
+
+                                            <p class="subject-description">{{subject.description}}</p>
+
+                                            </div>
+                                            <span class="lesson-duration">{{total_duration}}</span>
+                                             
+                                        </div>
+                                       
+                                        {% else %}
+                                        <p class="no-lessons">Nenhuma aula disponível nesta matéria.</p>
+                                        {% endif %}
+                                    {% endwith %}
+
+                                {% endif %}
+
+                            </div>
+
+                            {% if user.is_staff %}
+                            <button class="btn btn-primary" onclick="openLessonModal({{ subject.id }})">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Adicionar Aula
+                            </button>
+                            {% endif %}
+                        </div>
+
+                        
+                    </div>
+                    
+                    {% endfor %}
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                            <path d="M40 70c16.569 0 30-13.431 30-30 0-16.569-13.431-30-30-30-16.569 0-30 13.431-30 30 0 16.569 13.431 30 30 30z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M40 30v20M30 40h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <h3>Nenhuma matéria criada</h3>
+                        {% if user.is_staff %}
+                        <p>Comece criando o primeiro módulo do seu curso</p>
+                        <button class="btn btn-primary" onclick="openModal('modalCreateSubject')"> 
+                            Criar Primeira Matéria
+                        </button>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                </div>
+                
+            </div>
+
+            <div class="content-sidebar">
+
+                {% if school_user.role in "admin teacher" %}
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Gerenciar Avaliações</h3>
+                    <a href="{% url 'assessment_list' school.slug course.id %}" class="btn btn-primary btn-block">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" style="margin-right:6px;">
+                            <path d="M3 7H21V19C21 20.1 20.1 21 19 21H5
+                                    C3.9 21 3 20.1 3 19V7Z" 
+                                stroke="white" stroke-width="2" />
+                            <path d="M3 7V5C3 3.9 3.9 3 5 3H10L12 5H19
+                                    C20.1 5 21 5.9 21 7" 
+                                stroke="white" stroke-width="2" />
+                            <circle cx="12" cy="14" r="3" stroke="white" stroke-width="2"/>
+                            <path d="M12 10V8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M12 20V18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Ver Avaliações
+                    </a>
+                    <a href="{% url 'course_edit' school.slug course.id %}" class="btn btn-primary btn-block">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M11 4H4a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2"/>
+                            <path d="M13.5 2.5a2.121 2.121 0 113 3L9 13l-4 1 1-4 7.5-7.5z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Editar Curso
+                    </a>
+                </div>
+                {% endif %}
+
+                
+                    {% if user.is_staff %}
+                    <div class="sidebar-widget">
+                    <h3 class="widget-title">Alunos Matriculados</h3>
+                    <ul class="student-list">
+                        {% for item in students_progress %}
+                            {% with student=item.student progress=item.progress %}
+                                <li class="student-item">
+                                    <div>
+                                        {% if student.avatar %}
+                                            <!-- Foto do SchoolUser -->
+                                            <img class="avatar-placeholder" src="{{ student.avatar.url }}" alt="{{ student.user.get_full_name }}">
+                                        {% elif student.user.profile.avatar %}
+                                            <!-- Foto do Profile -->
+                                            <img class="avatar-placeholder" src="{{ student.user.profile.avatar.url }}" alt="{{ student.user.get_full_name }}">
+                                        {% else %}
+                                            <!-- Sem foto → mostrar iniciais -->
+                                            <span class="avatar-placeholder">
+                                                {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                                            </span>
+                                        {% endif %}
+
+                                    </div>
+
+                                    <div class="student-info">
+                                        <span class="student-name">{{ student.user.get_full_name }}</span>
+
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: {{ course_progress|floatformat:0 }}%;"></div>
+                                        </div>
+
+                                        <small class="progress-text">{{ course_progress|floatformat:0  }}% completo</small>
+                                    </div>
+
+                                </li>
+                            {% endwith %}
+                        {% empty %}
+                            <li>Nenhum aluno matriculado.</li>
+                        {% endfor %}
+
+                    </ul>
+                </div>
+            
+                {% else %}
+
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">Progresso do Curso</h3>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: {{ course_progress|floatformat:0 }}%;"></div>
+                    </div>
+                    <p class="progress-text">{{ course_progress|floatformat:1 }}% completo</p>
+
+                </div>
+                {% endif %}
+
+                <!-- Dicas -->
+                <div class="sidebar-widget">
+                    <h3 class="widget-title">💡 Dicas</h3>
+                    <ul class="tips-list">
+                        {% if user.is_staff %}
+                        <li>Organize o conteúdo em módulos lógicos</li>
+                        <li>Adicione materiais complementares</li>
+                        <li>Inclua exercícios práticos</li>
+                        <li>Mantenha as aulas entre 5-15 minutos</li>
+                        {% else %}
+                        <li>Revise o conteúdo periodicamente para fixar o aprendizado</li>
+                        <li>Crie resumos ou mapas mentais ao final de cada módulo</li>
+                        <li>Participe dos fóruns e interaja com outros alunos</li>
+                        <li>Assista às aulas em um ambiente sem distrações</li>
+                        <li>Faça anotações com suas próprias palavras</li>
+                        <li>Defina metas semanais de estudo</li>
+                        <li>Refaça os exercícios até se sentir confiante</li>
+                        <li>Marque as aulas concluídas para acompanhar seu progresso</li>
+                        <li>Use os materiais complementares para aprofundar o tema</li>
+                        <li>Revise as dúvidas com o professor ou tutor</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Avaliações -->
+    <div class="tab-content" id="assessment">
+        <div class="content-main">
+
+            <!-- Header Section -->
+            <div class="assessment-hero">
+                <div class="hero-icon">
+                    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                        <rect x="8" y="4" width="32" height="40" rx="4" stroke="currentColor" stroke-width="2"/>
+                        <path d="M16 14h16M16 22h16M16 30h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="36" cy="36" r="8" fill="currentColor"/>
+                        <path d="M33 36l2 2 4-4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="hero-content">
+                    <h2 class="section-title">Avaliações do Curso</h2>
+                    <p class="section-subtitle">Provas, trabalhos e atividades avaliativas deste curso.</p>
+                </div>
+            </div>
+
+            <!-- Assessment List -->
+            <div class="assessment-list">
+                {% if assessments %}
+                    {% for a in assessments %}
+                    <div class="assessment-card" data-status="{{ a.status }}">
+
+                        <!-- Header -->
+                        <div class="assessment-header">
+
+                            <div class="header-left">
+
+                                <div class="assessment-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="currentColor" stroke-width="2"/>
+                                        <rect x="9" y="3" width="6" height="4" rx="1" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M9 12h6M9 16h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+
+                                <div class="header-content">
+                                    <h3 class="assessment-title">{{ a.title }}</h3>
+                                    <span class="assessment-status-badge {{ a.status }}">
+                                        
+                                        <span class="status-dot"></span>
+                                       
+                                        {% if a.status == "pending" %}
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M8 4v4l2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                            Não iniciada
+                                        {% elif a.status == "active" %}
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M6 8l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                            Disponível
+                                        {% elif a.status == "closed" %}
+                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                            <rect x="3" y="7" width="10" height="7" rx="1" stroke="currentColor" stroke-width="2"/>
+                                            <path d="M5 7V5a3 3 0 016 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        </svg>
+                                            Encerrada
+                                        {% endif %}
+                                        
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <!-- Description -->
+                        {% if a.description %}
+                        <p class="assessment-description">
+                            {{ a.description }}
+                        </p>
+                        {% endif %}
+
+                        <!-- Info Grid -->
+                        <div class="assessment-info-grid">
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M9 4v5l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="info-content">
+                                    <span class="info-label">Duração</span>
+                                    <span class="info-value">{{ a.time_limit }} min</span>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <rect x="3" y="4" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 2v4M6 2v4M3 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="info-content">
+                                    <span class="info-label">Abertura</span>
+                                    <span class="info-value">{{ a.open_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <rect x="3" y="4" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                                        <path d="M12 2v4M6 2v4M3 8h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                        <path d="M6 11l2 2 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="info-content">
+                                    <span class="info-label">Fechamento</span>
+                                    <span class="info-value">{{ a.close_at|date:"d/m/Y H:i" }}</span>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path d="M9 1v16M13 5L9 1 5 5M13 13L9 17 5 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div class="info-content">
+                                    <span class="info-label">Tentativas</span>
+                                    <span class="info-value">{{ a.attempts_allowed|default:"1" }}x</span>
+                                </div>
+                            </div>
+
+
+
+                            <div class="info-item">
+                                <div class="info-icon">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                        <circle cx="3" cy="8" r="2.5" fill="currentColor"/>
+                                        <circle cx="13" cy="8" r="2.5" fill="currentColor"/>
+                                        <rect x="5" y="7" width="6" height="2" rx="1" fill="currentColor"/>
+                                        <circle cx="3" cy="8" r="1.5" fill="currentColor" opacity="0.6"/>
+                                        <circle cx="13" cy="8" r="1.5" fill="currentColor" opacity="0.6"/>
+                                    </svg>
+                                </div>
+                                <div class="info-content">
+                                    <span class="info-label">Peso</span>
+                                    <span class="info-value">{{ a.weight }}%</span>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <!-- Progress Bar (se houver tentativa) -->
+                        {% if a.user_attempt %}
+                        <div class="assessment-progress">
+                            <div class="progress-header">
+                                <span class="progress-label">Seu Progresso</span>
+                                <span class="progress-percentage">{{ a.user_attempt.progress|default:"0" }}%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: {{ a.user_attempt.progress|default:"0" }}%"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Actions -->
+                        <div class="assessment-actions">
+                            <a href="{% url 'assessment_detail' school.slug a.id %}" 
+                            class="action-btn details">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <path d="M9 12a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M1.5 9s2.5-6 7.5-6 7.5 6 7.5 6-2.5 6-7.5 6-7.5-6-7.5-6z" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                                <span>Detalhes</span>
+                            </a>
+
+                            {% if a.status == "active" %}
+                            <a href="{% url 'assessment_start' school.slug a.id %}" 
+                            class="btn btn-primary">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <path d="M5 3l10 6-10 6V3z" fill="currentColor"/>
+                                </svg>
+                                <span>Iniciar Avaliação</span>
+                            </a>
+                            {% endif %}
+
+                            {% if a.user_attempt %}
+                            <a href="{% url 'assessment_take' school.slug a.id a.user_attempt.id %}" 
+                            class="action-btn continue">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <path d="M3 3h12v12H3V3z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M6 6h6M6 9h6M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                </svg>
+                                <span>Continuar</span>
+                            </a>
+
+                            <a href="{% url 'assessment_result' school.slug a.id a.user_attempt.id %}" 
+                            class="action-btn result">
+                                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                    <path d="M15 8V5a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2h4" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M7 6h4M7 9h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                                    <circle cx="13" cy="13" r="3" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M11.5 13l1 1 2-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Ver Resultado</span>
+                            </a>
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                {% else %}
+                    <!-- Empty State -->
+                    {% include "themes/NeoLearn/components/empty_state.html" with title="Nenhuma avaliação cadastrada" message="Este curso ainda não possui avaliações disponíveis." %}
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tab: Informações -->
+    <div class="tab-content" id="info">
+        <div class="course-info-container">
+            
+            <!-- Hero Section -->
+            <div class="info-hero">
+                <div class="info-hero-image">
+                    {% if course.thumbnail %}
+                        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                    {% else %}
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1200&h=600&fit=crop" 
+                            alt="{{ course.title }}">
+                    {% endif %}
+                    <div class="info-hero-overlay">
+                        <div class="hero-badges">
+                            <span class="hero-badge category" style="background: {{ course.category.color }}; color: white; border: 1px solid {{ course.category.color }}50;">
+                                {{ course.category.name }}
+                            </span>
+                            {% if user.is_staff %}
+                            {% if course.status == 'active' %}
+                                <span class="hero-badge status-active">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                        <circle cx="7" cy="7" r="3" fill="currentColor"/>
+                                    </svg>
+                                    Publicado
+                                </span>
+                            {% elif course.status == 'draft' %}
+                                <span class="hero-badge status-draft">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                        <circle cx="7" cy="7" r="3" fill="currentColor"/>
+                                    </svg>
+                                    Rascunho
+                                </span>
+                            {% else %}
+                                <span class="hero-badge status-archived">
+                                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                                        <circle cx="7" cy="7" r="3" fill="currentColor"/>
+                                    </svg>
+                                    Arquivado
+                                </span>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-hero-content">
+                    <h1 class="info-hero-title">{{ course.title }}</h1>
+                    <p class="info-hero-subtitle">{{ course.short_description|default:"Descubra os conhecimentos essenciais neste curso completo." }}</p>
+                    
+                    <div class="info-hero-meta">
+                        <div class="hero-meta-item">
+                            <div class="meta-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M10 5v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </div>
+                            <div class="meta-content">
+                                <span class="meta-value">{{ total_duration }}</span>
+                                <span class="meta-label">de conteúdo</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hero-meta-item">
+                            <div class="meta-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="meta-content">
+                                <span class="meta-value">{{ total_lessons|default:0 }}</span>
+                                <span class="meta-label">aulas</span>
+                            </div>
+                        </div>
+                        
+                        <div class="hero-meta-item">
+                            <div class="meta-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="meta-content">
+                                <span class="meta-value">{{ course.students_count|default:0 }}</span>
+                                <span class="meta-label">alunos</span>
+                            </div>
+                        </div>
+                        
+                        {% if course.certificate_available %}
+                        <div class="hero-meta-item">
+                            <div class="meta-icon certificate">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M9 12l2 2 4-4M7 19H5a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v4" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M9 17v2l2-1 2 1v-2" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                            </div>
+                            <div class="meta-content">
+                                <span class="meta-value">Certificado</span>
+                                <span class="meta-label">incluído</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Grid -->
+            <div class="info-content-grid">
+                
+                <!-- Main Content -->
+                <div class="info-main-content">
+                    
+                    <!-- Description Section -->
+                    <section class="info-section description-section">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20z" stroke="currentColor" stroke-width="2"/>
+                                <path d="M12 8v5M12 16h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div class="section-content">
+                            <h2 class="section-title">Sobre este curso</h2>
+                            <div class="description-text">
+                                {{ course.description|linebreaksbr|default:"<p class='no-content'>Nenhuma descrição cadastrada ainda. Esta seção conterá informações detalhadas sobre o curso.</p>" }}
+                            </div>
+                        </div>
+                        {% if course.video_intro %}
+                        <div class="section-content">
+                            <h2 class="section-title">Objetivos do curso</h2>
+                            <div class="description-video">
+                                {% load custom_filters %}
+
+                               
+
+                                {% if 'youtube.com' in course.video_intro or 'youtu.be' in course.video_intro %}
+                                <iframe 
+                                    width="100%" 
+                                    height="100%" 
+                                    src="{{ course.video_intro|youtube_embed }}" 
+                                    title="YouTube video player" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    referrerpolicy="strict-origin-when-cross-origin" 
+                                    allowfullscreen>
+                                </iframe>
+                                
+                                {% else %}
+                                    <video src="{{ course.video_intro.url }}" controls width="100%"></video>
+                                {% endif %}
+                                
+                                
+                            </div>
+                        </div>
+                        {% endif %}
+                    </section>
+
+
+                    <!-- Learning Objectives / Matérias com tooltip de aulas -->
+                    <section class="info-section objectives-section">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+
+                        <div class="section-content">
+                            <h2 class="section-title">Matérias do Curso</h2>
+                            <div class="objectives-grid">
+                                {% for subject in course.subjects.all %}
+                                <div class="objective-item tooltip">
+                                    <svg class="objective-check" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="currentColor" opacity="0.1"/>
+                                        <path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span>{{ subject.title }}</span>
+
+                                    <!-- Tooltip com aulas -->
+                                    <div class="tooltip-content">
+                                        {% if subject.lessons.all %}
+                                            <strong>Aulas:</strong>
+                                            <ul>
+                                                {% for lesson in subject.lessons.all %}
+                                                    <li>{{ lesson.title }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        {% else %}
+                                            <em>Nenhuma aula cadastrada</em>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p>Nenhuma matéria cadastrada para este curso.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Learning Objectives -->
+                    {% if course.objectives %}
+                    <section class="info-section objectives-section">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="section-content">
+                            <h2 class="section-title">O que você vai aprender</h2>
+                            <div class="objectives-grid">
+                                {% for item in course.objectives.splitlines %}
+                                {% if item.strip %}
+                                <div class="objective-item">
+                                    <svg class="objective-check" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="9" fill="currentColor" opacity="0.1"/>
+                                        <path d="M6 10l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                    <span>{{ item|striptags }}</span>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    <!-- Requirements -->
+                    {% if course.requirements %}
+                    <section class="info-section requirements-section">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="section-content">
+                            <h2 class="section-title">Pré-requisitos</h2>
+                            <ul class="requirements-list">
+                                {% for item in course.requirements.splitlines %}
+                                {% if item.strip %}
+                                <li>
+                                    <svg width="6" height="6" viewBox="0 0 6 6" fill="none">
+                                        <circle cx="3" cy="3" r="3" fill="currentColor"/>
+                                    </svg>
+                                    {{ item|striptags }}
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </section>
+                    {% endif %}
+
+                    <!-- Instructor Info -->
+                    <section class="info-section instructor-section">
+                        <div class="section-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 7a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div class="section-content">
+                            <h2 class="section-title">Instrutor</h2>
+                            <div class="instructor-card">
+                                <div class="instructor-avatar">
+                                    {{ course.instructor.first_name.0|upper }}{{ course.instructor.last_name.0|upper }}
+                                </div>
+                                <div class="instructor-info">
+                                    <h3 class="instructor-name">{{ course.instructor.get_full_name }}</h3>
+                                    <p class="instructor-title">Professor • {{ school.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- Sidebar -->
+                <div class="info-sidebar">
+                    
+                    <!-- Quick Stats Card -->
+                    <div class="info-sidebar-card stats-card">
+                        <h3 class="sidebar-card-title">Estatísticas Rápidas</h3>
+                        <div class="quick-stats">
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 7a4 4 0 100-8 4 4 0 000 8z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-stat-content">
+                                    <span class="quick-stat-value">{{ course.students_count|default:0 }}</span>
+                                    <span class="quick-stat-label">Estudantes</span>
+                                </div>
+                            </div>
+                            
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-stat-content">
+                                    <span class="quick-stat-value">4.8</span>
+                                    <span class="quick-stat-label">Avaliação</span>
+                                </div>
+                            </div>
+                            
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M10 5v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-stat-content">
+                                    <span class="quick-stat-value">{{ total_duration }}</span>
+                                    <span class="quick-stat-label">Duração</span>
+                                </div>
+                            </div>
+                            
+                            <div class="quick-stat-item">
+                                <div class="quick-stat-icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-stat-content">
+                                    <span class="quick-stat-value">{{ total_subjects|default:0 }}</span>
+                                    <span class="quick-stat-label">Matérias</span>
+                                </div>
+                            </div>
+
+                                                        <div class="quick-stat-item">
+                                <div class="quick-stat-icon">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div class="quick-stat-content">
+                                    <span class="quick-stat-value">{{ total_lessons|default:0 }}</span>
+                                    <span class="quick-stat-label">Aulas</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Course Details Card -->
+                    <div class="info-sidebar-card details-card">
+                        <h3 class="sidebar-card-title">Detalhes do Curso</h3>
+                        <div class="details-list">
+                            <div class="detail-item">
+                                <span class="detail-label">Nível</span>
+                                <span class="detail-value">
+                                    {% if course.level == 'beginner' %}
+                                        <span class="badge badge-success">Iniciante</span>
+                                    {% elif course.level == 'intermediate' %}
+                                        <span class="badge badge-warning">Intermediário</span>
+                                    {% else %}
+                                        <span class="badge badge-error">Avançado</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Certificado</span>
+                                <span class="detail-value">
+                                    {% if course.certificate_available %}
+                                        <span class="badge badge-success">Sim</span>
+                                    {% else %}
+                                        <span class="badge badge-neutral">Não</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Última atualização</span>
+                                <span class="detail-value">{{ course.updated_at|date:"d/m/Y" }}</span>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <span class="detail-label">Criado em</span>
+                                <span class="detail-value">{{ course.created_at|date:"d/m/Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Card -->
+                    <div class="info-sidebar-card share-card">
+                        <h3 class="sidebar-card-title">Compartilhar</h3>
+                        <div class="share-buttons">
+                            <button class="share-btn" title="Copiar link">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 13a3 3 0 100-6 3 3 0 000 6zM2.05 10.36a1 1 0 010-.72C2.72 8.06 5.67 4 10 4s7.28 4.06 7.95 5.64a1 1 0 010 .72C17.28 11.94 14.33 16 10 16s-7.28-4.06-7.95-5.64z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Link
+                            </button>
+                            <button class="share-btn" title="Compartilhar no WhatsApp">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.5 9.5a.5.5 0 011 0 2.5 2.5 0 005 0 .5.5 0 011 0 3.5 3.5 0 01-7 0z" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                WhatsApp
+                            </button>
+                            <button class="share-btn" title="Compartilhar no Email">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M3 4h14a2 2 0 012 2v8a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2z" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M19 6l-9 6-9-6" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                Email
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+{% include "themes/NeoLearn/includes/modalsForms/modal_create_subject.html" with modal_id="modalCreateSubject" modal_title="Adicionar Matéria" %}
+{% include "themes/NeoLearn/includes/modalsForms/modal_update_subject.html" with modal_id="modalUpdateSubject" modal_title="Editar Matéria" %}
+
+{% include "themes/NeoLearn/includes/modalsForms/modal_create_lesson.html" with modal_id="modalCreateLesson" modal_title="Adicionar Aula" %}
+{% include "themes/NeoLearn/includes/modalsForms/modal_update_lesson.html" with modal_id="modalUpdateLesson" modal_title="Editar Aula" %}
+
+
+{% endblock %}
+
+{% block extra_js %}
+
+<style>
+
+/* ===== HERO SECTION ===== */
+.assessment-hero {
+display: flex;
+align-items: center;
+gap: 1.5rem;
+padding: 2rem;
+background: linear-gradient(135deg, var(--primary-500) 0%, var(--secondary-500) 100%);
+border-radius: var(--radius-xl);
+color: var(--text-primary);
+margin-bottom: 2rem;
+box-shadow: 0 8px 24px rgba(79, 70, 229, 0.3);
+}
+
+.hero-icon {
+width: 80px;
+height: 80px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: rgba(255, 255, 255, 0.2);
+border-radius: var(--radius-lg);
+backdrop-filter: blur(10px);
+color: white;
+}
+
+.hero-content {
+flex: 1;
+}
+
+.section-title {
+font-size: 2rem;
+font-weight: 800;
+margin: 0 0 0.5rem 0;
+color: white;
+}
+
+.section-subtitle {
+font-size: 1.125rem;
+margin: 0;
+color: rgba(255, 255, 255, 0.9);
+}
+
+/* ===== ASSESSMENT LIST ===== */
+.assessment-list {
+display: grid;
+gap: 1.5rem;
+border: 1px solid var(--border-color);
+border-radius: var(--radius-xl);
+}
+
+/* ===== ASSESSMENT CARD ===== */
+.assessment-card {
+position: relative;
+background: var(--bg-primary);
+border-radius: var(--radius-xl);
+padding: 2rem;
+box-shadow: var(--shadow-md);
+border: 2px solid var(--border-light);
+transition: var(--transition);
+overflow: hidden;
+}
+
+.assessment-card::before {
+content: '';
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+height: 4px;
+background: linear-gradient(90deg, var(--primary-500), #6366f1);
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.3s ease;
+}
+
+.assessment-card:hover {
+border-color: var(--color-primary);
+box-shadow: var(--shadow-xl);
+transform: translateY(-2px);
+}
+
+.assessment-card:hover::before {
+transform: scaleX(1);
+}
+
+.assessment-card[data-status="pending"]::before {
+background: linear-gradient(90deg, var(--color-pending), #fbbf24);
+}
+
+.assessment-card[data-status="active"]::before {
+background: linear-gradient(90deg, var(--color-active), #14b8a6);
+}
+
+.assessment-card[data-status="closed"]::before {
+background: linear-gradient(90deg, var(--color-closed), #9ca3af);
+}
+
+/* Status Corner Badge */
+.status-corner {
+position: absolute;
+top: 1.5rem;
+right: 1.5rem;
+width: 40px;
+height: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 50%;
+backdrop-filter: blur(10px);
+}
+
+.status-corner.pending {
+background: rgba(245, 158, 11, 0.15);
+color: var(--color-pending);
+}
+
+.status-corner.active {
+background: rgba(16, 185, 129, 0.15);
+color: var(--color-active);
+}
+
+.status-corner.closed {
+background: rgba(107, 114, 128, 0.15);
+color: var(--color-closed);
+}
+
+/* Header */
+.assessment-header {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 1.5rem;
+gap: 1rem;
+}
+
+.header-left {
+display: flex;
+gap: 1rem;
+flex: 1;
+}
+
+.assessment-icon {
+width: 48px;
+height: 48px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: var(--bg-secondary);
+border-radius: var(--radius-md);
+color: var(--color-primary);
+flex-shrink: 0;
+}
+
+.header-content {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.assessment-title {
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-primary);
+margin: 0 0 0.5rem 0;
+}
+
+.assessment-status-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.375rem 0.875rem;
+border-radius: 100px;
+font-size: 0.875rem;
+font-weight: 600;
+}
+
+.assessment-status-badge.pending {
+background: rgba(245, 158, 11, 0.1);
+color: var(--color-pending);
+border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.assessment-status-badge.active {
+background: rgba(16, 185, 129, 0.1);
+color: var(--color-active);
+border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.assessment-status-badge.closed {
+background: rgba(107, 114, 128, 0.1);
+color: var(--color-closed);
+border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.status-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: currentColor;
+animation: pulse 2s ease infinite;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.5; }
+}
+
+
+
+/* Description */
+.assessment-description {
+color: var(--text-secondary);
+line-height: 1.6;
+margin: 0 0 1.5rem 0;
+padding: 1rem;
+background: var(--bg-secondary);
+border-radius: var(--radius-md);
+border-left: 3px solid var(--color-primary);
+}
+
+/* Info Grid */
+.assessment-info-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+gap: 1rem;
+margin-bottom: 1.5rem;
+}
+
+.info-item {
+display: flex;
+align-items: center;
+gap: 1rem;
+padding: 1rem;
+background: var(--bg-secondary);
+border-radius: var(--radius-md);
+transition: var(--transition);
+}
+
+.info-item:hover {
+background: var(--bg-tertiary);
+transform: translateX(4px);
+}
+
+.info-icon {
+width: 36px;
+height: 36px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: var(--bg-primary);
+border-radius: var(--radius-sm);
+color: var(--color-primary);
+box-shadow: var(--shadow-sm);
+flex-shrink: 0;
+}
+
+.info-content {
+display: flex;
+flex-direction: column;
+gap: 0.25rem;
+}
+
+.info-label {
+font-size: 0.75rem;
+font-weight: 600;
+color: var(--text-tertiary);
+text-transform: uppercase;
+letter-spacing: 0.5px;
+}
+
+.info-value {
+font-size: 0.875rem;
+font-weight: 700;
+color: var(--text-primary);
+}
+
+
+@keyframes shimmer {
+0% { transform: translateX(-100%); }
+100% { transform: translateX(100%); }
+}
+
+/* Actions */
+.assessment-actions {
+display: flex;
+flex-wrap: wrap;
+gap: 0.75rem;
+padding-top: 1.5rem;
+border-top: 2px solid var(--border-light);
+}
+
+.action-btn {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.75rem 1.25rem;
+border-radius: var(--radius-md);
+font-size: 0.875rem;
+font-weight: 600;
+text-decoration: none;
+transition: var(--transition);
+border: 2px solid transparent;
+}
+
+.action-btn svg {
+flex-shrink: 0;
+}
+
+.action-btn.details {
+background: var(--bg-secondary);
+color: var(--text-primary);
+border-color: var(--border-color);
+}
+
+.action-btn.details:hover {
+background: var(--bg-tertiary);
+border-color: var(--text-secondary);
+transform: translateY(-2px);
+box-shadow: var(--shadow-md);
+}
+
+
+.action-btn.continue {
+background: linear-gradient(135deg, var(--color-info), #60a5fa);
+color: white;
+box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.action-btn.continue:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.action-btn.result {
+background: linear-gradient(135deg, var(--color-success), #14b8a6);
+color: white;
+box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.action-btn.result:hover {
+transform: translateY(-2px);
+box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+
+.assessment-info-grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+}
+
+@media (max-width: 768px) {
+.content-main {
+    padding: 1rem;
+}
+
+.assessment-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.hero-icon {
+    width: 64px;
+    height: 64px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+}
+
+.section-subtitle {
+    font-size: 1rem;
+}
+
+.assessment-card {
+    padding: 1.5rem;
+}
+
+.assessment-header {
+    flex-direction: column;
+}
+
+.header-left {
+    width: 100%;
+}
+
+.assessment-info-grid {
+    grid-template-columns: 1fr;
+}
+
+.assessment-actions {
+    flex-direction: column;
+}
+
+.action-btn {
+    width: 100%;
+    justify-content: center;
+}
+}
+
+@media (max-width: 480px) {
+.status-corner {
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+}
+
+.status-corner svg {
+    width: 14px;
+    height: 14px;
+}
+
+.assessment-title {
+    font-size: 1.25rem;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+}
+
+.header-left {
+    flex-direction: column;
+    align-items: flex-end;
+}
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideInUp {
+from {
+    opacity: 0;
+    transform: translateY(20px);
+}
+to {
+    opacity: 1;
+    transform: translateY(0);
+}
+}
+
+.assessment-card {
+animation: slideInUp 0.5s ease;
+}
+
+.assessment-card:nth-child(1) { animation-delay: 0.1s; }
+.assessment-card:nth-child(2) { animation-delay: 0.2s; }
+.assessment-card:nth-child(3) { animation-delay: 0.3s; }
+.assessment-card:nth-child(4) { animation-delay: 0.4s; }
+.assessment-card:nth-child(5) { animation-delay: 0.5s; }
+
+
+/* ===== ACCESSIBILITY ===== */
+.action-btn:focus,
+.assessment-card:focus-within {
+outline: 3px solid var(--color-primary);
+outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+*,
+*::before,
+*::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+}
+}
+
+
+/* ===== LOADING STATES ===== */
+.loading-skeleton {
+background: linear-gradient(90deg, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%);
+background-size: 200% 100%;
+animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+0% { background-position: 200% 0; }
+100% { background-position: -200% 0; }
+}
+
+/* ===== TOOLTIP STYLES ===== */
+[data-tooltip] {
+position: relative;
+cursor: help;
+}
+
+[data-tooltip]::before {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 100%;
+left: 50%;
+transform: translateX(-50%) translateY(-8px);
+padding: 0.5rem 0.75rem;
+background: var(--text-primary);
+color: white;
+font-size: 0.75rem;
+border-radius: var(--radius-sm);
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: var(--transition);
+z-index: 1000;
+}
+
+[data-tooltip]:hover::before {
+opacity: 1;
+transform: translateX(-50%) translateY(-4px);
+}
+
+/* ===== NOTIFICATION BADGE ===== */
+.notification-badge {
+position: absolute;
+top: -8px;
+right: -8px;
+min-width: 20px;
+height: 20px;
+padding: 0 6px;
+background: var(--color-danger);
+color: white;
+font-size: 0.7rem;
+font-weight: 700;
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+0%, 100% { transform: scale(1); }
+50% { transform: scale(1.2); }
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+.assessment-list::-webkit-scrollbar {
+width: 8px;
+}
+
+.assessment-list::-webkit-scrollbar-track {
+background: var(--bg-secondary);
+border-radius: 4px;
+}
+
+.assessment-list::-webkit-scrollbar-thumb {
+background: var(--text-tertiary);
+border-radius: 4px;
+}
+
+.assessment-list::-webkit-scrollbar-thumb:hover {
+background: var(--text-secondary);
+}
+
+/* ===== HOVER EFFECTS EXTRAS ===== */
+.assessment-card {
+transform-style: preserve-3d;
+}
+
+.assessment-card:hover .assessment-icon {
+transform: rotateY(360deg);
+transition: transform 0.6s ease;
+}
+
+
+@keyframes wiggle {
+0%, 100% { transform: rotate(0deg); }
+25% { transform: rotate(-10deg); }
+75% { transform: rotate(10deg); }
+}
+
+/* ===== STATUS INDICATORS ===== */
+.status-indicator {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.25rem 0.75rem;
+border-radius: 100px;
+font-size: 0.75rem;
+font-weight: 600;
+}
+
+.status-indicator.online {
+background: rgba(16, 185, 129, 0.1);
+color: var(--color-success);
+}
+
+.status-indicator.offline {
+background: rgba(239, 68, 68, 0.1);
+color: var(--color-danger);
+}
+
+/* ===== GRADIENT TEXT ===== */
+.gradient-text {
+background: linear-gradient(135deg, var(--color-primary), #6366f1);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+
+/* ===== CARD VARIANTS ===== */
+.assessment-card.featured {
+border: 2px solid var(--border-color);
+box-shadow: 0 8px 24px rgba(79, 70, 229, 0.2);
+}
+
+.assessment-card.featured::after {
+content: '⭐ Destaque';
+position: absolute;
+top: 1rem;
+left: 1rem;
+padding: 0.375rem 0.75rem;
+background: linear-gradient(135deg, #fbbf24, #f59e0b);
+color: white;
+font-size: 0.75rem;
+font-weight: 700;
+border-radius: 100px;
+box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+}
+
+/* ===== TIME REMAINING INDICATOR ===== */
+.time-remaining {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.75rem 1rem;
+background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+border-radius: var(--radius-md);
+border-left: 3px solid var(--color-danger);
+margin-top: 1rem;
+}
+
+.time-remaining svg {
+color: var(--color-danger);
+animation: pulse 2s ease infinite;
+}
+
+.time-remaining-text {
+font-size: 0.875rem;
+font-weight: 600;
+color: var(--color-danger);
+}
+
+/* ===== SUCCESS MESSAGE ===== */
+.success-message {
+display: flex;
+align-items: center;
+gap: 1rem;
+padding: 1rem 1.5rem;
+background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1));
+border-radius: var(--radius-md);
+border-left: 3px solid var(--color-success);
+margin-bottom: 1.5rem;
+}
+
+.success-message svg {
+color: var(--color-success);
+flex-shrink: 0;
+}
+
+/* ===== FILTER BUTTONS ===== */
+.filter-buttons {
+display: flex;
+gap: 0.75rem;
+margin-bottom: 1.5rem;
+flex-wrap: wrap;
+}
+
+.filter-btn {
+padding: 0.5rem 1rem;
+border: 2px solid var(--border-color);
+background: var(--bg-primary);
+border-radius: 100px;
+font-size: 0.875rem;
+font-weight: 600;
+color: var(--text-secondary);
+cursor: pointer;
+transition: var(--transition);
+}
+
+.filter-btn:hover {
+border-color: var(--color-primary);
+color: var(--color-primary);
+}
+
+.filter-btn.active {
+background: var(--color-primary);
+border-color: var(--color-primary);
+color: white;
+}
+
+/* ===== COMPLETION BADGE ===== */
+.completion-badge {
+display: inline-flex;
+align-items: center;
+gap: 0.5rem;
+padding: 0.5rem 1rem;
+background: linear-gradient(135deg, var(--color-success), #14b8a6);
+color: white;
+border-radius: 100px;
+font-size: 0.875rem;
+font-weight: 700;
+box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.completion-badge svg {
+animation: rotate 2s linear infinite;
+}
+
+@keyframes rotate {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE IMPROVEMENTS ===== */
+@media (max-width: 640px) {
+.assessment-hero {
+    padding: 1.25rem;
+}
+
+.hero-icon {
+    width: 56px;
+    height: 56px;
+}
+
+.section-title {
+    font-size: 1.375rem;
+}
+
+}
+
+/* ===== TRANSITION IMPROVEMENTS ===== */
+* {
+transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.assessment-card,
+.action-btn,
+.stat-card,
+.info-item {
+will-change: transform;
+}
+
+/* ===== FOCUS VISIBLE IMPROVEMENTS ===== */
+.action-btn:focus-visible {
+outline: 3px solid var(--color-primary);
+outline-offset: 3px;
+}
+
+.assessment-card:focus-visible {
+outline: 3px solid var(--color-primary);
+outline-offset: 3px;
+}
+
+/* ===== HIGH CONTRAST MODE ===== */
+@media (prefers-contrast: high) {
+.assessment-card {
+    border: 3px solid currentColor;
+}
+
+.action-btn {
+    border: 3px solid currentColor;
+}
+}
+</style>
+
+<script>
+// ========== TABS ==========
+document.querySelectorAll('.tab-item').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const targetTab = tab.dataset.tab;
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(targetTab).classList.add('active');
+  });
+});
+
+// ========== TOGGLE MODULE ==========
+function toggleModule(moduleId, button) {
+  const card = button.closest('.module-card');
+  const content = document.getElementById(`module-${moduleId}`);
+  const isOpen = card.classList.contains('is-open');
+
+  if (isOpen) {
+    card.classList.remove('is-open');
+    content.style.display = 'none';
+  } else {
+    card.classList.add('is-open');
+    content.style.display = 'block';
+  }
+}
+
+// ========== MODAL MÓDULO ==========
+function openLessonModal(subjectId) {
+  const form = document.querySelector("#formCreateLesson");
+  form.action = `{% url 'lesson_create' school.slug course.id 0 %}`.replace('/0/', `/${subjectId}/`);
+  openModal('modalCreateLesson');
+}
+
+// ========== EDITAR MATÉRIA ==========
+function openEditSubjectModal(button) {
+  const id = button.dataset.id;
+  const title = button.dataset.title;
+  const description = button.dataset.description;
+  const status = button.dataset.status;
+  const order = button.dataset.order;
+
+  document.getElementById("subjectTitle").value = title || "";
+  document.getElementById("subjectDescription").value = description || "";
+  document.getElementById("subjectStatus").value = status || "draft";
+  document.getElementById("subjectOrder").value = order || 1;
+
+  const form = document.getElementById("formUpdateSubject");
+  form.action = `{% url 'subject_update' school.slug course.id 0 %}`.replace('/0/', `/${id}/`);
+
+  openModal('modalUpdateSubject');
+}
+
+// ========== EDITAR AULA ==========
+function openEditLessonModal(button) {
+    const form = document.getElementById("formUpdateLesson");
+
+    const title = button.dataset.title || "";
+    const description = button.dataset.description || "";
+    const type = button.dataset.type || "video";
+    const order = button.dataset.order || 1;
+    const status = button.dataset.status || "draft";
+
+    const videoTitleField = form.querySelector("input[name='video_title']");
+    const videoDurationField = form.querySelector("input[name='video_duration']");
+    const videoFileNameDisplay = document.getElementById("videoFileNameDisplay");
+    const durationDisplay = document.getElementById("video-duration-display");
+    const totalDurationField = document.getElementById("updateLessonDurationField");
+    let videoInput = form.querySelector(".video-input");
+
+    // ----- RESET CAMPOS DE VÍDEO -----
+    if (videoInput) {
+        // Remove arquivo selecionado
+        videoInput.value = "";
+        // Limpa display
+        if (videoTitleField) videoTitleField.value = "";
+        if (videoFileNameDisplay) videoFileNameDisplay.textContent = "";
+        if (durationDisplay) durationDisplay.textContent = "⏱️ 0:00";
+        if (videoDurationField) videoDurationField.value = 0;
+        if (totalDurationField) totalDurationField.value = 0;
+
+        // Remove listeners antigos substituindo o input (evita múltiplos onchange)
+        const newVideoInput = videoInput.cloneNode(true);
+        videoInput.parentNode.replaceChild(newVideoInput, videoInput);
+        videoInput = newVideoInput;
+    }
+
+    // Preenche campos básicos
+    document.getElementById("lessonTitle").value = title;
+    document.getElementById("lessonDescription").value = description;
+    document.getElementById("updateLessonContentType").value = type;
+    document.getElementById("lessonOrder").value = order;
+    document.getElementById("lessonStatus").value = status;
+    form.action = button.dataset.action;
+
+    updateChangeLessonType(type);
+
+    if (type === "text") {
+        document.getElementById("lessonContentText").value = button.dataset.content || "";
+    } else if (type === "video") {
+        if (videoTitleField) videoTitleField.value = button.dataset.videoTitle || "";
+
+        // Nome do arquivo do backend
+        if (videoFileNameDisplay) {
+            videoFileNameDisplay.textContent = button.dataset.videoFile
+                ? button.dataset.videoFile.split("/").pop()
+                : "Nenhum arquivo enviado";
+        }
+
+        // Duração do backend
+        const duration = parseFloat(button.dataset.duration.replace(',', '.')) || 0;
+        if (videoDurationField) videoDurationField.value = duration;
+        if (totalDurationField) totalDurationField.value = duration;
+        if (durationDisplay) {
+            const minutes = Math.floor(duration);
+            const seconds = Math.round((duration - minutes) * 60);
+            durationDisplay.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2,"0")}`;
+        }
+
+        // Novo listener para captura de duração ao selecionar novo arquivo
+        videoInput.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            videoFileNameDisplay.textContent = file.name;
+            
+            const video = document.createElement("video");
+            video.preload = "metadata";
+            video.onloadedmetadata = () => {
+                URL.revokeObjectURL(video.src);
+                const durationMin = (video.duration / 60).toFixed(3);
+
+                if (videoDurationField) videoDurationField.value = durationMin;
+                if (totalDurationField) totalDurationField.value = durationMin;
+
+                const minutes = Math.floor(durationMin);
+                const seconds = Math.round((durationMin - minutes) * 60);
+                durationDisplay.textContent = `⏱️ ${minutes}:${seconds.toString().padStart(2,"0")}`;
+            };
+            video.src = URL.createObjectURL(file);
+        };
+    }
+
+    openModal('modalUpdateLesson');
+}
+
+
+
+// ========== TIPO DE CONTEÚDO ==========
+function changeLessonType(type) {
+  document.querySelectorAll('.lesson-content-fields').forEach(f => f.style.display = 'none');
+  if (type === 'video') {
+    document.getElementById('lessonVideoFields').style.display = 'block';
+    document.getElementById('lessonDurationField').style.display = 'block';
+    
+  } else if (type === 'text') {
+    document.getElementById('lessonTextFields').style.display = 'block';
+    document.getElementById('lessonDurationField').style.display = 'none';
+  } else if (type === 'quiz') {
+    document.getElementById('lessonQuizFields').style.display = 'block';
+    document.getElementById('lessonDurationField').style.display = 'none';
+  } else if (type === 'file') {
+    document.getElementById('lessonFileFields').style.display = 'block';
+    document.getElementById('lessonDurationField').style.display = 'none';
+  }
+}
+
+// ========== TIPO DE CONTEÚDO UPDATE ==========
+function updateChangeLessonType(type) {
+  document.querySelectorAll('.update-lesson-content-fields').forEach(f => f.style.display = 'none');
+
+  if (type === 'video') {
+    document.getElementById('updateLessonVideoFields').style.display = 'block';
+    document.getElementById('updateLessonDurationField').style.display = 'block';
+  } else if (type === 'text') {
+    document.getElementById('updateLessonTextFields').style.display = 'block';
+    document.getElementById('updateLessonDurationField').style.display = 'none';
+  } else if (type === 'quiz') {
+    document.getElementById('updateLessonQuizFields').style.display = 'block';
+    document.getElementById('updateLessonDurationField').style.display = 'none';
+  } else if (type === 'file') {
+    document.getElementById('updateLessonFileFields').style.display = 'block';
+    document.getElementById('updateLessonDurationField').style.display = 'none';
+  }
+}
+
+// ========== FECHAR LISTAS AO CARREGAR ==========
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.module-content').forEach(el => el.style.display = 'none');
+});
+
+// ========== CAPTURAR DURAÇÃO DO VÍDEO ==========
+document.addEventListener('DOMContentLoaded', () => {
+  const videoInput = document.getElementById('lessonVideo');
+  const durationInput = document.getElementById('lessonDuration');
+  if (videoInput) {
+    videoInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = function () {
+        window.URL.revokeObjectURL(video.src);
+        durationInput.value = (video.duration / 60).toFixed(1);
+      };
+      video.src = URL.createObjectURL(file);
+    });
+  }
+});
+
+// ========== MARCAR AULA CONCLUÍDA ==========
+document.addEventListener('DOMContentLoaded', () => {
+    // percorre todas as lições
+    document.querySelectorAll('.lesson-item').forEach(item => {
+        const icon = item.querySelector('.lesson-status');
+        const link = item.querySelector('.lesson-title a');
+        if (!icon || !link) return;
+
+        item.addEventListener('click', async (e) => {
+        // 🚫 Ignora cliques em botões ou formulários (edição/deleção)
+        if (e.target.closest('button') || e.target.closest('form') || e.target.closest('.lesson-actions')) {
+            return;
+        }
+
+        e.preventDefault();
+        const lessonId = icon.dataset.lessonId;
+        const courseId = "{{ course.id }}";
+        const schoolSlug = "{{ school.slug }}";
+        const isCompleted = icon.dataset.completed === "true";
+
+        // ⚡ Se já estiver concluída, só abre a janela (sem mudar ícone nem enviar AJAX)
+        if (isCompleted) {
+            window.open(link.href, 'lessonWindow');
+            return;
+        }
+
+        // ✅ Marca como concluída visualmente
+        icon.dataset.completed = "true";
+        const closedIcon = icon.querySelector('.book-icon.closed');
+        const openIcon = icon.querySelector('.book-icon.open');
+        closedIcon.style.display = 'none';
+            openIcon.style.display = 'block';
+
+        // 📨 Envia atualização pro backend
+    try {
+    const response = await fetch(`/school/${schoolSlug}/courses/${courseId}/lessons/${lessonId}/progress/`, {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+        'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ is_completed: true })
+        });
+        if (response.ok) {
+        const data = await response.json();
+        const progress = Math.round(data.course_progress || 0);
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+
+        if (progressFill) {
+            progressFill.style.transition = 'width 0.5s ease';
+            progressFill.style.width = `${progress}%`;
+        }
+        if (progressText) progressText.textContent = `${progress}% completo`;
+        } else {
+        console.error(`❌ Erro ao atualizar progresso da aula ${lessonId}`);
+        }
+        } catch (err) {
+        console.error('Erro de rede ao atualizar progresso:', err);
+        }
+
+        // 🪟 Abre ou reutiliza a janela "lessonWindow"
+        setTimeout(() => {
+            window.open(link.href, 'lessonWindow');
+        }, 100);
+        });
+    });
+});
+
+
+// ========== PEGAR CSRF ==========
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+ }
+
+</script>
+{% endblock %}

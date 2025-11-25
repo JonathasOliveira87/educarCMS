@@ -1,0 +1,93 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Editar avaliação - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs">
+  <a href="{% url 'course_detail' school.slug assessment.course.id %}">{{ assessment.course.title|title }}</a>
+  <a href="{% url 'assessment_list' school.slug assessment.course.id %}">Avaliações</a>
+
+  <strong>Editar Avaliação</strong>
+</div>
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+  {% include "themes/NeoLearn/components/page_header.html" with title="Editar avaliação" subtitle="Ajuste configurações sem perder as tentativas já realizadas." %}
+</div>
+
+<div class="form-section">
+  <form method="post" class="form">
+    {% csrf_token %}
+
+    <div class="form-grid two-cols">
+      <div class="form-group">
+        <label class="form-label"for="id_title">Título da avaliação</label>
+        <input class="form-input"type="text" id="id_title" name="title"
+                value="{{ assessment.title }}" required>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"for="id_type">Tipo</label>
+        <select class="form-select"id="id_type" name="type" >
+          <option value="quiz" {% if assessment.type == 'quiz' %}selected{% endif %}>Quiz / Objetiva</option>
+          <option value="apol" {% if assessment.type == 'apol' %}selected{% endif %}>APOL / Avaliação Oficial</option>
+          <option value="essay" {% if assessment.type == 'essay' %}selected{% endif %}>Dissertativa</option>
+          <option value="file_upload" {% if assessment.type == 'file_upload' %}selected{% endif %}>Envio de Arquivo</option>
+          <option value="practice" {% if assessment.type == 'practice' %}selected{% endif %}>Atividade Prática</option>
+          <option value="final_exam" {% if assessment.type == 'final_exam' %}selected{% endif %}>Prova Final</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_weight">Peso na nota (%)</label>
+        <input class="form-input" type="number" id="id_weight" name="weight" value="{{ assessment.weight|stringformat:'g' }}" min="0" max="100" step="0.1">
+      </div>
+
+
+      <div class="form-group">
+        <label class="form-label"for="id_attempts">Tentativas permitidas</label>
+        <input class="form-input"type="number" id="id_attempts" name="attempts_allowed" 
+                value="{{ assessment.attempts_allowed }}" min="1">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"for="id_time_limit">Tempo limite (minutos)</label>
+        <input class="form-input"type="number" id="id_time_limit" name="time_limit" 
+                value="{{ assessment.time_limit|default_if_none:'' }}">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"for="id_open_at">Data / hora de abertura</label>
+        <input class="form-input"type="datetime-local" id="id_open_at" name="open_at" 
+                value="{{ assessment.open_at|date:'Y-m-d\\TH:i' }}">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label"for="id_close_at">Data / hora de fechamento</label>
+        <input class="form-input"type="datetime-local" id="id_close_at" name="close_at"
+                value="{{ assessment.close_at|date:'Y-m-d\\TH:i' }}">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label"for="id_description">Descrição / instruções para o aluno</label>
+      <textarea class="form-textarea" id="id_description" name="description"  rows="4">
+{{ assessment.description }}
+      </textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Salvar alterações</button>
+      <a href="{% url 'assessment_list' school.slug assessment.course.id %}"
+          class="btn btn-outline">
+        Cancelar
+      </a>
+    </div>
+  </form>
+</div>
+
+
+{% endblock %}

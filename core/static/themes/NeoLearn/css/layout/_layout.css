@@ -1,0 +1,37 @@
+/* ============================================================
+  NeoLearn - Layout / _header.css
+  ============================================================ */
+
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+  padding-top: var(--header-height);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: var(--sidebar-width);
+  padding: var(--space-8);
+  transition: margin-left var(--transition-base);
+}
+
+/* ======= Grid Layout ======= */
+.grid {
+  display: grid;
+}
+
+.two-cols {
+  grid-template-columns: repeat(auto-fit, minmax(660px, 1fr));
+  align-items: start;
+}
+
+.gap-lg {
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .two-cols {
+    grid-template-columns: 1fr;
+  }
+}
+

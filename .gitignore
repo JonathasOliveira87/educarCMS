@@ -1,0 +1,23 @@
+# ===================== ROOT =====================
+venv/
+.env
+*.pyc
+__pycache__/
+*.sqlite3
+
+# ===================== DJANGO =====================
+static_root/
+media/
+*.log
+
+# ===================== PYCHARM / VS CODE =====================
+.vscode/
+.idea/
+
+# ===================== MIGRATIONS =====================
+*/migrations/*
+!*/migrations/__init__.py
+
+# ===================== OS FILES =====================
+.DS_Store
+Thumbs.db

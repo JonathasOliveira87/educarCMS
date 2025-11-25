@@ -1,0 +1,83 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Submissões - {{ assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <header class="page-header">
+    <div class="header-left">
+      <p class="breadcrumbs">
+        <a href="{% url 'assessment_list' school.slug assessment.course.id %}">Avaliações</a> /
+        <strong>Submissões</strong>
+      </p>
+      <h1 class="page-title">Submissões dos alunos</h1>
+      <p class="page-subtitle">
+        Acompanhe tentativas, notas e status desta avaliação.
+      </p>
+    </div>
+    <div class="header-right">
+      <a href="{% url 'assessment_stats' school.slug assessment.id %}"
+         class="button secondary">
+        Ver estatísticas
+      </a>
+    </div>
+  </header>
+
+  <div class="card">
+    <table class="table clean">
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Tentativa</th>
+          <th>Início</th>
+          <th>Fim</th>
+          <th>Nota</th>
+          <th>Status</th>
+          <th class="text-right">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for a in attempts %}
+          <tr>
+            <td>{{ a.student.user.get_full_name|default:a.student.user.username }}</td>
+            <td>#{{ a.attempt_number }}</td>
+            <td>{{ a.started_at|date:"d/m/Y H:i" }}</td>
+            <td>
+              {% if a.finished_at %}
+                {{ a.finished_at|date:"d/m/Y H:i" }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if a.score != None %}
+                {{ a.score }}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+            <td>
+              {% if a.is_submitted %}
+                ✅ Enviada
+              {% else %}
+                ⏳ Em andamento
+              {% endif %}
+            </td>
+            <td class="text-right">
+              <a href="{% url 'grade_attempt' school.slug assessment.id a.id %}"
+                 class="button small primary">
+                Corrigir / Rever
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">Nenhuma tentativa registrada ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+{% endblock %}

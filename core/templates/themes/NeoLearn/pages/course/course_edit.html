@@ -1,0 +1,412 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Editar Curso - {{ course.title }}{% endblock %}
+{% block body_class %}course-edit-page{% endblock %}
+ 
+{% block content %}
+
+<!-- ======= Breadcrumbs ======= -->
+<div class="breadcrumbs">
+<a href="{% url 'course_detail' school.slug course.id %}">{{ course.title|title }}</a>
+<strong>Editar Curso</strong>
+</div>
+
+<!-- ======= Page Hearder ======= -->
+<div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Editar Curso" subtitle="Atualize as informações do curso existente" %}
+</div>
+
+
+<form method="POST" enctype="multipart/form-data" class="course-edit-form">
+    {% csrf_token %}
+    
+    <div class="form-grid">
+        <!-- Coluna Principal -->
+        <div class="form-main">
+            <!-- Informações Básicas -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">Informações Básicas</h2>
+                    <span class="section-badge required">* Obrigatório</span>
+                </div>
+                <!-- Titulo -->
+                <div class="form-group">
+                    <label for="title" class="form-label">
+                        Título do Curso
+                        <span class="required-mark">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title" 
+                        class="form-input"
+                        value="{{ course.title }}" 
+                        maxlength="50" 
+                        required>
+                        <span class="form-hint">Um título claro e descritivo ajuda os alunos a encontrar seu curso</span>
+                </div>
+
+                <!-- Descrição curta -->
+                <div class="form-group">
+                    <label for="short_description" class="form-label">
+                        Descrição Curta
+                        <span class="required-mark">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="short_description" 
+                        name="short_description" 
+                        class="form-input" 
+                        value="{{ course.short_description }}"
+                        maxlength="100"
+                    >
+                    <span class="form-hint">Uma descrição curta e objetiva ajuda os alunos a entender rapidamente sobre o que é o curso</span>
+                </div>
+
+                <!-- Descrição completa -->
+                <div class="form-group">
+                    <label for="description" class="form-label">
+                        Descrição Completa
+                        <span class="required-mark">*</span>
+                    </label>
+                    <textarea 
+                    id="description" 
+                    name="description" 
+                    class="form-textarea" 
+                    rows="8">{{ course.description }}
+                    </textarea>
+                    <span class="form-hint">Seja detalhado sobre o conteúdo e objetivos do curso</span>
+                </div>
+            </div>
+
+            <!-- Objetivos e Requisitos -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">Objetivos e Requisitos</h2>
+                    <span class="section-badge">Opcional</span>
+                </div>
+
+                <!-- Objetivos -->
+                <div class="form-group">
+                    <label for="objectives" class="form-label">O que os alunos aprenderão?</label>
+                    <textarea 
+                        id="objectives" 
+                        name="objectives" 
+                        class="form-textarea" 
+                        rows="6">{{ course.objectives }}
+                    </textarea>
+                    <span class="form-hint">Liste os principais objetivos de aprendizado (um por linha)</span>
+                </div>
+
+                <!-- Requisitos -->
+                <div class="form-group">
+                    <label for="requirements" class="form-label">Pré-requisitos</label>
+                    <textarea 
+                        id="requirements" 
+                        name="requirements" 
+                        class="form-textarea" 
+                        rows="5">{{ course.requirements }}
+                    </textarea>
+                    <span class="form-hint">Informe o que é necessário para fazer o curso</span>
+                </div>
+
+            </div>
+
+            <!-- Mídia -->
+            <div class="form-section">
+                <div class="section-header">
+                    <h2 class="section-title">Imagem e Vídeo</h2>
+                    <span class="section-badge">Opcional</span>
+                </div>
+
+                <!-- Thumbnail -->
+                <div class="form-group">
+                    <label for="thumbnail" class="form-label">Imagem de Capa</label>
+                    <div class="file-upload-area" id="thumbnailUploadArea">
+                        <input 
+                            type="file" 
+                            id="thumbnail" 
+                            name="thumbnail" 
+                            accept="image/*"
+                            value="{{ course.thumbnail}}"
+                            hidden
+                        >
+                        <div class="file-upload-content">
+                            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                                <rect x="6" y="10" width="36" height="28" rx="2" stroke="currentColor" stroke-width="2"/>
+                                <circle cx="16" cy="20" r="3" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 32l8-8 6 6 8-8 14 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <h4>Clique para fazer upload ou arraste a imagem</h4>
+                            <p>PNG, JPG ou WEBP (máx. 2MB) - Recomendado: 1280x720px</p>
+                        </div>
+                        <div class="file-preview" id="thumbnailPreview" style="display: none;">
+                            <img src="" alt="Preview">
+                            <button type="button" class="remove-file" onclick="removeThumbnail()">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <path d="M15 5L5 15M5 5l10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vídeo URL -->
+                <div class="form-group">
+                    <label for="video_intro" class="form-label">Vídeo de Introdução (URL)</label>
+                    <input 
+                        type="url" 
+                        id="video_intro" 
+                        name="video_intro" 
+                        class="form-input"
+                        placeholder="https://youtube.com/watch?v=..."
+                        value="{{ course.video_intro }}"
+                    >
+                    <span class="form-hint">Link do YouTube, Vimeo ou outro serviço de vídeo</span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Sidebar -->
+        <div class="form-sidebar">
+            <!-- Status e Publicação -->
+             <div class="sidebar-card">
+
+                <h3 class="card-title">Publicação</h3>
+                
+                <div class="form-group">
+                    <label for="status" class="form-label">Status</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="draft" {% if course.status == 'draft' %}selected{% endif %}>Rascunho</option>
+                        <option value="active" {% if course.status == 'active' %}selected{% endif %}>Ativo (Publicado)</option>
+                        <option value="archived" {% if course.status == 'archived' %}selected{% endif %}>Arquivado</option>
+                    </select>
+                </div>
+
+                <div class="status-info">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M8 4v5M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <span>Cursos em rascunho não aparecem no catálogo</span>
+                </div>
+            </div>
+
+            <!-- Categoria e Nível -->
+            <div class="sidebar-card">
+                <h3 class="card-title">Categoria e Nível</h3>
+                
+                <div class="form-group">
+                    <label for="category" class="form-label">
+                        Categoria
+                        <span class="required-mark">*</span>
+                    </label>
+                    <div class="input-with-action">
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">Selecione uma categoria</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if cat.id == course.category.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% if not categories %}
+                    <div class="alert-inline warning">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M8 1L1 14h14L8 1z" stroke="currentColor" stroke-width="1.5"/>
+                            <path d="M8 6v3M8 11h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                        <span>Nenhuma categoria cadastrada. Crie uma categoria antes de continuar.</span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="level" class="form-label">
+                        Nível de Dificuldade
+                        <span class="required-mark">*</span>
+                    </label>
+                    <select id="level" name="level" class="form-select" required>
+                        <option value="beginner" {% if course.level == "beginner" %}selected{% endif %}>Iniciante</option>
+                        <option value="intermediate" {% if course.level == "intermediate" %}selected{% endif %}>Intermediário</option>
+                        <option value="advanced" {% if course.level == "advanced" %}selected{% endif %}>Avançado</option>
+                    </select>
+
+                </div>
+            </div>
+
+            <!-- Configurações -->
+            <div class="sidebar-card">
+                <h3 class="card-title">Configurações</h3>
+
+                <!-- Duração -->
+                <div class="form-group">
+                    <label for="duration_hours" class="form-label">Duração Total (horas)</label>
+                    <input type="number" id="duration_hours" name="duration_hours" class="form-input" 
+                        placeholder="Ex: 8"
+                        value="{{ course.duration_hours|default_if_none:'' }}">
+                </div>
+
+                <!-- Preço -->
+                <div class="form-group">
+                    <label for="price" class="form-label">Preço (R$)</label>
+                    <input type="number" id="price" name="price" class="form-input"
+                       step="0.01" value="{{ course.price|floatformat:2 }}" placeholder="0.00">
+                    <span class="form-hint">Digite 0.00 para curso gratuito</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="max_students" class="form-label">Limite de Alunos</label>
+                    <input 
+                        type="number" 
+                        id="max_students" 
+                        name="max_students" 
+                        class="form-input"
+                        min="1"
+                        placeholder="Ilimitado"
+                        value="{{ course.max_students|default_if_none:'' }}"
+                    >
+                    <span class="form-hint">Deixe em branco para ilimitado</span>
+                </div>
+            </div>
+            
+           <!-- Recursos -->
+            <div class="sidebar-card">
+                <h3 class="card-title">Recursos</h3>
+
+                <div class="checkbox-group">
+
+                    <!-- Certificado -->
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="certificate_available" {% if course.certificate_available %}checked{% endif %}>
+                        <span class="checkbox-custom"></span>
+                        <div class="checkbox-text">
+                            <strong>Certificado de Conclusão</strong>
+                            <small>Emitir certificado ao final</small>
+                        </div>
+                    </label>
+
+                    <!-- Destaque -->
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_featured" {% if course.is_featured %}checked{% endif %}>
+                        <span class="checkbox-custom"></span>
+                        <div class="checkbox-text">
+                            <strong>Curso em Destaque</strong>
+                            <small>Aparecer na página inicial</small>
+                        </div>
+                    </label>
+
+                </div>
+            </div>
+
+    
+            <!-- Ações -->
+            <div class="sidebar-actions">
+                <button type="submit" class="btn btn-primary btn-block">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M16 2v5h-5M4 18v-5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2.5 10.5A7.5 7.5 0 0 1 16 6l0 0M18 9.5A7.5 7.5 0 0 1 4.5 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Salvar Alterações
+                </button>
+                <a href="{% url 'course_list' school.slug %}" class="btn btn-outline btn-block">
+                    Cancelar
+                </a>
+            </div>
+        </div>
+
+    </div>
+</form>
+<script>
+// ========== PREVIEW DE THUMBNAIL ==========
+const thumbnailInput = document.getElementById('thumbnail');
+const thumbnailArea = document.getElementById('thumbnailUploadArea');
+const thumbnailPreview = document.getElementById('thumbnailPreview');
+
+thumbnailArea.addEventListener('click', () => {
+    thumbnailInput.click();
+});
+
+thumbnailArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    thumbnailArea.classList.add('drag-over');
+});
+
+thumbnailArea.addEventListener('dragleave', () => {
+    thumbnailArea.classList.remove('drag-over');
+});
+
+thumbnailArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    thumbnailArea.classList.remove('drag-over');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        thumbnailInput.files = files;
+        previewThumbnail(files[0]);
+    }
+});
+
+thumbnailInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        previewThumbnail(e.target.files[0]);
+    }
+});
+
+function previewThumbnail(file) {
+    if (!file.type.startsWith('image/')) {
+        alert('Por favor, selecione uma imagem válida.');
+        return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) {
+        alert('A imagem deve ter no máximo 2MB.');
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        thumbnailPreview.querySelector('img').src = e.target.result;
+        thumbnailPreview.style.display = 'block';
+        thumbnailArea.querySelector('.file-upload-content').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeThumbnail() {
+    thumbnailInput.value = '';
+    thumbnailPreview.style.display = 'none';
+    thumbnailArea.querySelector('.file-upload-content').style.display = 'flex';
+}
+
+// ========== CONTADOR DE CARACTERES ==========
+function setupCharCounter(inputId, max) {
+const input = document.getElementById(inputId);
+if (!input) return;
+
+
+const group = input.closest('.form-group');
+
+input.addEventListener('input', function() {
+    const length = this.value.length;
+
+    let counter = group.querySelector('.char-counter');
+    if (!counter) {
+        counter = document.createElement('span');
+        counter.className = 'char-counter';
+        group.appendChild(counter);
+    }
+
+    counter.textContent = `${length}/${max}`;
+    counter.style.color = length > max * 0.9 ? 'var(--error-600)' : 'var(--text-tertiary)';
+});
+
+
+}
+
+// Configura os contadores para os campos desejados
+setupCharCounter('title', 50);
+setupCharCounter('short_description', 100);
+</script>
+{% endblock %}

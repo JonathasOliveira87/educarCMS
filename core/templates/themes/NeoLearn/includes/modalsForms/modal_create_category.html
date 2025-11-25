@@ -1,0 +1,64 @@
+{% extends "themes/NeoLearn/includes/modal_generic.html" %}
+<!-- Modal de Nova Categoria -->
+{% block formModal %}
+    <form id="categoryForm" action="{% url 'category_create' school.slug %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="category_name" class="form-label">
+                    Nome da Categoria
+                    <span class="required-mark">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="category_name" 
+                    name="name" 
+                    class="form-input"
+                    placeholder="Ex: Programação, Design, Marketing..."
+                    required
+                    maxlength="100"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="category_description" class="form-label">Descrição</label>
+                <textarea 
+                    id="category_description" 
+                    name="description" 
+                    class="form-textarea"
+                    rows="3"
+                    placeholder="Breve descrição da categoria (opcional)"
+                ></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="category_color" class="form-label">Cor</label>
+                <div class="color-picker-group">
+                    <input 
+                        type="color" 
+                        id="category_color" 
+                        name="color" 
+                        value="#3b82f6"
+                    >
+                    <input 
+                        type="text" 
+                        id="category_color_text" 
+                        class="form-input"
+                        value="#3b82f6"
+                        pattern="^#[0-9A-Fa-f]{6}$"
+                    >
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="closeModal('{{ modal_id }}')">Cancelar</button>
+            <button type="submit" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Criar Categoria
+            </button>
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Editar alternativa - Questão {{ choice.question.order }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <!-- ======= Breadcrumbs ======= -->
+  <p class="breadcrumbs">
+    <a href="{% url 'course_detail' school.slug choice.question.assessment.course.id %}">{{ choice.question.assessment.course.title|title }}</a>
+    <a href="{% url 'assessment_list' school.slug choice.question.assessment.course.id %}">Avaliações</a> 
+    <a href="{% url 'question_list' school.slug choice.question.assessment.id %}">Questões</a>
+    <a href="{% url 'choice_list' school.slug choice.question.id %}">Alternativas</a>
+    <strong>Editar alternativa</strong>
+  </p>
+
+   <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Editar alternativa" subtitle=question.text  %}
+  </div>
+
+
+  <div class="form-section">
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label class="form-label" for="id_text">Texto da alternativa</label>
+        <textarea id="id_text" name="text" class="form-textarea" rows="3" required>{{ choice.text }}</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_order">Ordem</label>
+        <input type="number" id="id_order" name="order"  class="form-input"
+                value="{{ choice.order }}">
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" class="checkbox" name="is_correct" {% if choice.is_correct %}checked{% endif %}>
+          <span>Esta alternativa é a correta</span>
+        </label>
+      </div>
+
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+        <a href="{% url 'choice_list' school.slug choice.question.id %}"
+           class="btn btn-outline">Cancelar</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

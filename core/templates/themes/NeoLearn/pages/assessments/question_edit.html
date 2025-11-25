@@ -1,0 +1,76 @@
+{% extends "themes/NeoLearn/base.html" %}
+{% load static %}
+
+{% block title %}Editar questão - {{ question.assessment.title }} | {{ school.name }}{% endblock %}
+
+{% block content %}
+<div class="page-container course-detail-page">
+
+  <header class="page-header">
+    <div class="header-left">
+      <p class="breadcrumbs">
+        <a href="{% url 'question_list' school.slug question.assessment.id %}">Questões</a> /
+        <strong>Editar</strong>
+      </p>
+
+  </header>
+
+  <!-- ======= Breadcrumbs ======= -->
+  <p class="breadcrumbs">
+    <a href="{% url 'course_detail' school.slug question.assessment.course.id %}">{{ question.assessment.course.title|title }}</a>
+      <a href="{% url 'assessment_list' school.slug question.assessment.course.id %}">Avaliações</a> 
+    <a href="{% url 'question_list' school.slug question.assessment.id %}">Questões</a>
+    <strong>Nova Questão</strong>
+  </p>
+
+  <!-- ======= Page Hearder ======= -->
+  <div class="page-header">
+    {% include "themes/NeoLearn/components/page_header.html" with title="Editar questão" subtitle="Ajuste texto, tipo e pontuação." %}
+  </div>
+
+
+
+
+  <div class="card">
+    <form method="post" class="form">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="id_text">Enunciado da questão</label>
+        <textarea id="id_text" name="text" class="textarea" rows="4" required>{{ question.text }}</textarea>
+      </div>
+
+      <div class="form-grid two-cols">
+        <div class="form-group">
+          <label for="id_type">Tipo de questão</label>
+          <select id="id_type" name="type" class="input">
+            <option value="multiple_choice" {% if question.type == "multiple_choice" %}selected{% endif %}>Múltipla escolha</option>
+            <option value="true_false" {% if question.type == "true_false" %}selected{% endif %}>Verdadeiro ou falso</option>
+            <option value="essay" {% if question.type == "essay" %}selected{% endif %}>Dissertativa</option>
+            <option value="file" {% if question.type == "file" %}selected{% endif %}>Envio de arquivo</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="id_points">Pontos</label>
+          <input type="number" id="id_points" name="points" class="input"
+                 value="{{ question.points }}" min="0" step="0.1">
+        </div>
+
+        <div class="form-group">
+          <label for="id_order">Ordem</label>
+          <input type="number" id="id_order" name="order" class="input"
+                 value="{{ question.order }}">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Salvar alterações</button>
+        <a href="{% url 'question_list' school.slug question.assessment.id %}"
+           class="btn btn-outline">Voltar</a>
+      </div>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

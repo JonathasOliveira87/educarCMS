@@ -6,6 +6,8 @@ __pycache__/
 *.sqlite3
 BANCO.TXT
 ATUALIZAÇÕES.TXT
+commit-guide.txt
+
 # ===================== DJANGO =====================
 static_root/
 media/

@@ -56,17 +56,6 @@
                         <span>Alunos</span>
                     </a>
                 </li>
-                <li>
-                    <a href="#" class="nav-item {% if request.resolver_match.url_name == 'plugin_list' %}active{% endif %}">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <rect x="4" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <rect x="11" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <rect x="4" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                            <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
-                        <span>Plugins</span>
-                    </a>
-                </li>
             </ul>
         </div>
         {% endif %}
@@ -84,14 +73,14 @@
                 </li>
                 {% if user.is_staff %}
                 <li>
-<a href="{% url 'school_settings' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'school_settings' %}active{% endif %}">
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M3 17V9L10 3L17 9V17H12V12H8V17H3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M10 3V1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        <circle cx="10" cy="1" r="0.5" fill="currentColor"/>
-    </svg>
-    <span>Escola</span>
-</a>
+                    <a href="{% url 'school_settings' slug=school_user.school.slug %}" class="nav-item {% if request.resolver_match.url_name == 'school_settings' %}active{% endif %}">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 17V9L10 3L17 9V17H12V12H8V17H3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M10 3V1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <circle cx="10" cy="1" r="0.5" fill="currentColor"/>
+                        </svg>
+                        <span>Escola</span>
+                    </a>
                 </li>
                 {% endif %}
 
@@ -107,14 +96,33 @@
         </div>
     </nav>
     
-    <div class="sidebar-footer">
-        <div class="upgrade-card">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<div class="sidebar-footer">
+    <div class="upgrade-card">
+
+        <!-- Ícone -->
+        <div class="upgrade-icon">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <rect x="4" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="4" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="4" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="11" y="11" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.5"/>
             </svg>
-            <h4>Upgrade Pro</h4>
-            <p>Acesse recursos avançados</p>
-            <button class="btn btn-primary btn-sm">Upgrade</button>
         </div>
+
+        <!-- Textos -->
+        <div class="upgrade-info">
+            <h4 class="upgrade-title">Plugins Pro</h4>
+            <p class="upgrade-desc">Acesse recursos avançados</p>
+        </div>
+
+        <!-- Ações -->
+        <div class="upgrade-actions">
+   
+            <a href="{% url 'plugin' slug=school_user.school.slug %}" class="btn btn-primary btn-sm">Upgrade</a>
+            
+        </div>
+
     </div>
+</div>
+
 </aside>

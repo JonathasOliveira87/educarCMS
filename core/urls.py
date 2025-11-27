@@ -115,4 +115,9 @@ urlpatterns = [
     path('school/<slug:slug>/users/create/', views.create_user, name='create_user'),  # Criar usuário
     path('school/<slug:slug>/users/<int:user_id>/update/', views.edit_user, name='edit_user'),  # Editar usuário
     path('school/<slug:slug>/users/<int:user_id>/delete/', views.delete_user, name='delete_user'),  # Excluir usuário
+
+    # -----------------------------
+    # Plugin
+    # -----------------------------
+    path('school/<slug:slug>/plugin/', views.plugin_page, name='plugin'),
 ]

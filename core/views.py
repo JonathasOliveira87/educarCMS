@@ -554,3 +554,13 @@ def delete_user(request, slug, user_id, school_user, school):
     su.user.delete()
     messages.success(request, f'Usuário "{name}" removido com sucesso.')
     return redirect('manage_users', slug=slug)
+
+
+
+@school_context_required
+def plugin_page(request, slug, school_user, school):
+    context = {
+    'school': school,
+    'school_user': school_user,
+    }
+    return t(request, school, "plugin", context)

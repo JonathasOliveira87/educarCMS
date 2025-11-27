@@ -52,6 +52,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
+                'core.context_processors.version',
             ],
         },
     },
@@ -146,3 +147,7 @@ LOGIN_REDIRECT_URL = '/'
 
 # Após logout
 LOGOUT_REDIRECT_URL = '/'
+
+
+with open(BASE_DIR / "VERSION") as f:
+    APP_VERSION = f.read().strip()

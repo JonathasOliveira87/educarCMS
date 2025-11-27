@@ -1,0 +1,17 @@
+{% extends "themes/NeoLearn/base.html" %}
+
+{% block content %}
+<div style="text-align:center; padding:60px 20px;">
+    
+
+    <!-- Empty State -->
+    {% include "themes/NeoLearn/components/empty_state.html" with title="Página em Construção" message="Estamos preparando algo incrível para você! 🚀" %}
+    <br>
+
+    <a href="{% url 'school_dashboard' slug=school_user.school.slug %}"
+       class="btn btn-primary">
+        Voltar ao Painel
+    </a>
+
+</div>
+{% endblock %}

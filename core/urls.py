@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.urls import path
-from . import views, assessments_views, courses_views, lessons_views, settings_views
+from . import views, assessments_views, courses_views, lessons_views, settings_views, profile_views
 
 urlpatterns = [
     # -----------------------------
@@ -100,13 +100,13 @@ urlpatterns = [
     # -----------------------------
     # PERFIL
     # -----------------------------
-    path('school/<slug:slug>/perfil/', views.profile, name='profile'),  # Visualizar perfil
-    path('school/<slug:slug>/perfil/update/', views.profile_update, name='profile_update'),  # Atualizar perfil
-    path('school/<slug:slug>/perfil/preferences/', views.profile_preferences, name='profile_preferences'),  # Preferências do usuário
-    path('school/<slug:slug>/perfil/notifications/', views.profile_notifications, name='profile_notifications'),  # Notificações
-    path('school/<slug:slug>/perfil/upload/', views.profile_avatar_upload, name='profile_avatar_upload'),  # Upload de avatar
-    path('school/<slug:slug>/perfil/banner/', views.profile_banner_upload, name='profile_banner_upload'),  # Upload de banner
-    path('school/<slug:slug>/perfil/password/', views.change_password, name='change_password'),  # Alterar senha
+    path('school/<slug:slug>/perfil/', profile_views.profile, name='profile'),  # Visualizar perfil
+    path('school/<slug:slug>/perfil/update/', profile_views.profile_update, name='profile_update'),  # Atualizar perfil
+    path('school/<slug:slug>/perfil/preferences/', profile_views.profile_preferences, name='profile_preferences'),  # Preferências do usuário
+    path('school/<slug:slug>/perfil/notifications/', profile_views.profile_notifications, name='profile_notifications'),  # Notificações
+    path('school/<slug:slug>/perfil/upload/', profile_views.profile_avatar_upload, name='profile_avatar_upload'),  # Upload de avatar
+    path('school/<slug:slug>/perfil/banner/', profile_views.profile_banner_upload, name='profile_banner_upload'),  # Upload de banner
+    path('school/<slug:slug>/perfil/password/', profile_views.change_password, name='change_password'),  # Alterar senha
 
     # -----------------------------
     # USUÁRIOS

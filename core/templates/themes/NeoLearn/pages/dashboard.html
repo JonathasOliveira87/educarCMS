@@ -55,9 +55,9 @@
                             <video src="{{ course.video_intro.url }}" controls width="100%"></video>
                         {% endif %}
                         {% elif course.thumbnail %}
-                            <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                            <img src="{{ course.thumbnail.url }}" alt="{{ course.title|title }}">
                         {% else %}
-                            <img src="{% static 'img/placeholder-course.jpg' %}" alt="{{ course.title }}">
+                            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop" alt="{{ course.title|title }}"/>
                         {% endif %}
                         {% if course.created_at|date:"Y-m" == now|date:"Y-m" %}
                             <span class="course-list-badge">Novo</span>

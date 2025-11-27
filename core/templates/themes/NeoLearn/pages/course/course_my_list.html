@@ -77,10 +77,7 @@
                 {% elif course.thumbnail %}
                 <img src="{{ course.thumbnail.url }}" alt="{{ course.title|title }}" />
                 {% else %}
-                <img
-                    src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop"
-                    alt="{{ course.title|title }}"
-                />
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&h=450&fit=crop" alt="{{ course.title|title }}"/>
                 {% endif %}
 
                 {% if course.status == 'active' %}

@@ -4,7 +4,8 @@ venv/
 *.pyc
 __pycache__/
 *.sqlite3
-
+BANCO.TXT
+ATUALIZAÇÕES.TXT
 # ===================== DJANGO =====================
 static_root/
 media/
@@ -21,3 +22,4 @@ media/
 # ===================== OS FILES =====================
 .DS_Store
 Thumbs.db
+
